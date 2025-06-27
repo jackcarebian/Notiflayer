@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,22 +14,33 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { interests } from "@/lib/outlets";
+import { promoInterests } from "@/lib/outlets";
 import type { Outlet } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { registerUserAction } from "@/app/actions";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getMessaging, getToken } from "firebase/messaging";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Nama harus memiliki setidaknya 2 karakter." }),
   email: z.string().email({ message: "Format email tidak valid." }),
-  interests: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: "Anda harus memilih setidaknya satu minat.",
-  }),
+  preferences: z.record(z.array(z.string())).refine(
+    (value) => Object.keys(value).length > 0 && Object.values(value).some((arr) => arr.length > 0),
+    {
+      message: "Anda harus memilih setidaknya satu minat promo.",
+    }
+  ),
 });
 
 type RegistrationFormProps = {
@@ -44,29 +56,67 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
     defaultValues: {
       name: "",
       email: "",
-      interests: [],
+      preferences: {},
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     
-    // Stub for asking notification permission
-    console.log("Requesting notification permission...");
+    let fcmToken: string | null = null;
     try {
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-            console.log('Notification permission not granted.');
+        // =================================================================
+        // PENTING: Ganti dengan konfigurasi project Firebase Anda!
+        // Anda bisa menemukannya di Project settings > General di Firebase Console.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // =================================================================
+
+        if (firebaseConfig.apiKey === "YOUR_API_KEY_HERE") {
+             console.warn("Firebase config is not set. Skipping notification permission.");
         } else {
-            console.log('Notification permission granted.');
-            // Here you would get the FCM token and include it in the data
+            const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+            const messaging = getMessaging(app);
+            
+            console.log("Requesting notification permission...");
+            const permission = await Notification.requestPermission();
+            
+            if (permission === 'granted') {
+                console.log('Notification permission granted.');
+                // =================================================================
+                // PENTING: Ganti dengan VAPID key Anda dari Firebase Console
+                // Project Settings > Cloud Messaging > Web configuration
+                const VAPID_KEY = "YOUR_VAPID_KEY_HERE";
+                // =================================================================
+
+                const currentToken = await getToken(messaging, { vapidKey: VAPID_KEY });
+                if (currentToken) {
+                    fcmToken = currentToken;
+                    console.log('FCM Token:', fcmToken);
+                } else {
+                    console.log('No registration token available. Request permission to generate one.');
+                }
+            } else {
+                console.log('Unable to get permission to notify.');
+            }
         }
     } catch(error) {
-        console.error("Error requesting notification permission:", error);
+        console.error("Error getting FCM token:", error);
+        toast({
+            variant: "destructive",
+            title: "Izin Notifikasi Gagal",
+            description: "Terjadi kesalahan saat meminta izin notifikasi. Pastikan browser Anda mendukungnya.",
+        });
     }
 
 
-    const result = await registerUserAction({ ...values, outletSlug: outlet.slug });
+    const result = await registerUserAction({ ...values, outletSlug: outlet.slug, fcmToken });
     
     if (result.success) {
       toast({
@@ -117,50 +167,58 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
             />
             <FormField
               control={form.control}
-              name="interests"
-              render={() => (
+              name="preferences"
+              render={({ field }) => (
                 <FormItem>
                   <div className="mb-4">
                     <FormLabel className="text-base">Minat Promo</FormLabel>
                     <FormDescription>
-                      Pilih kategori promo yang Anda minati.
+                      Pilih kategori dan jenis promo yang Anda minati.
                     </FormDescription>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
-                  {interests.map((item) => (
-                    <FormField
-                      key={item}
-                      control={form.control}
-                      name="interests"
-                      render={({ field }) => {
-                        return (
-                          <FormItem
-                            key={item}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item])
-                                    : field.onChange(
-                                        field.value?.filter(
+                  <Accordion type="multiple" className="w-full">
+                    {Object.entries(promoInterests).map(([category, items]) => (
+                      <AccordionItem value={category} key={category}>
+                        <AccordionTrigger>{category}</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2">
+                            {items.map((item) => (
+                              <FormItem
+                                key={item}
+                                className="flex flex-row items-center space-x-3 space-y-0"
+                              >
+                                <FormControl>
+                                  <Checkbox
+                                    checked={field.value?.[category]?.includes(item) ?? false}
+                                    onCheckedChange={(checked) => {
+                                      const currentCategoryPrefs = field.value?.[category] || [];
+                                      let newCategoryPrefs;
+                                      if (checked) {
+                                        newCategoryPrefs = [...currentCategoryPrefs, item];
+                                      } else {
+                                        newCategoryPrefs = currentCategoryPrefs.filter(
                                           (value) => value !== item
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {item}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                  ))}
-                  </div>
+                                        );
+                                      }
+                                      const newPreferences = {
+                                        ...field.value,
+                                        [category]: newCategoryPrefs,
+                                      };
+                                      if (newPreferences[category].length === 0) {
+                                        delete newPreferences[category];
+                                      }
+                                      field.onChange(newPreferences);
+                                    }}
+                                  />
+                                </FormControl>
+                                <FormLabel className="font-normal text-sm">{item}</FormLabel>
+                              </FormItem>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
                   <FormMessage />
                 </FormItem>
               )}
@@ -169,6 +227,7 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
               Daftar dan Aktifkan Notifikasi
             </Button>
+            <p className="text-xs text-muted-foreground text-center">Dengan mendaftar, Anda setuju untuk menerima notifikasi promo melalui browser.</p>
           </form>
         </Form>
       </CardContent>
