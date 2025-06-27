@@ -3,7 +3,8 @@ import Link from "next/link"
 import {
   LayoutDashboard,
   QrCode,
-  LogOut
+  LogOut,
+  Send
 } from "lucide-react"
 
 import {
@@ -47,6 +48,14 @@ export default function AdminLayout({
                 <Link href="/admin/outlets">
                   <QrCode />
                   Outlets
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/campaign')}>
+                <Link href="/admin/campaign">
+                  <Send />
+                  Kampanye
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

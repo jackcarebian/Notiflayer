@@ -27,11 +27,11 @@ const customerChartData = [
   { date: "2025-06-27", newCustomers: 26 },
 ]
 
-const interestChartData = [
-  { interest: "Cafe", customers: 850, fill: "var(--color-chart-1)" },
-  { interest: "Resto", customers: 630, fill: "var(--color-chart-2)" },
-  { interest: "Kedai", customers: 450, fill: "var(--color-chart-3)" },
-  { interest: "Aksesoris", customers: 459, fill: "var(--color-chart-4)" },
+const outletChartData = [
+    { outlet: "Cafe Inyong", customers: 850, fill: "var(--color-chart-1)" },
+    { outlet: "Madhang Enak", customers: 630, fill: "var(--color-chart-2)" },
+    { outlet: "Kedai Kopi Inyong", customers: 450, fill: "var(--color-chart-3)" },
+    { outlet: "Ayu Aksesoris", customers: 459, fill: "var(--color-chart-4)" },
 ]
 
 const chartConfig = {
@@ -39,23 +39,23 @@ const chartConfig = {
     label: "Customers",
   },
   newCustomers: {
-    label: "New Customers",
+    label: "Pelanggan Baru",
     color: "hsl(var(--chart-1))",
   },
-  cafe: {
-    label: "Cafe",
+  "Cafe Inyong": {
+    label: "Cafe Inyong",
     color: "hsl(var(--chart-1))",
   },
-  resto: {
-    label: "Resto",
+  "Madhang Enak": {
+    label: "Madhang Enak",
     color: "hsl(var(--chart-2))",
   },
-  kedai: {
-    label: "Kedai",
+  "Kedai Kopi Inyong": {
+    label: "Kedai Kopi",
     color: "hsl(var(--chart-3))",
   },
-  aksesoris: {
-    label: "Aksesoris",
+  "Ayu Aksesoris": {
+    label: "Ayu Aksesoris",
     color: "hsl(var(--chart-4))",
   },
 }
@@ -65,7 +65,7 @@ export function CustomerCharts() {
      <Card>
       <CardHeader>
         <CardTitle>Analitik Pelanggan</CardTitle>
-        <CardDescription>Grafik Pelanggan Baru per Hari dan Minat Pelanggan</CardDescription>
+        <CardDescription>Grafik Pelanggan Baru per Hari dan Distribusi per Outlet</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="flex flex-col">
@@ -89,7 +89,7 @@ export function CustomerCharts() {
             </ChartContainer>
         </div>
         <div className="flex flex-col items-center">
-            <h3 className="text-lg font-semibold mb-2 text-center">Minat Pelanggan</h3>
+            <h3 className="text-lg font-semibold mb-2 text-center">Pelanggan per Outlet</h3>
             <ChartContainer
                 config={chartConfig}
                 className="mx-auto aspect-square h-[200px]"
@@ -100,9 +100,9 @@ export function CustomerCharts() {
                     content={<ChartTooltipContent hideLabel />}
                     />
                     <Pie
-                    data={interestChartData}
+                    data={outletChartData}
                     dataKey="customers"
-                    nameKey="interest"
+                    nameKey="outlet"
                     innerRadius={60}
                     strokeWidth={5}
                     />
@@ -127,7 +127,7 @@ export function CustomerCharts() {
           Tren naik 5.2% bulan ini <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Menampilkan data pendaftaran pelanggan baru.
+          Menampilkan data pendaftaran pelanggan baru dan distribusinya.
         </div>
       </CardFooter>
     </Card>
