@@ -8,13 +8,6 @@ export const outlets: Outlet[] = [
     address: 'Jl. Pahlawan No. 123, Kota Tegal',
     category: 'Cafe',
   },
-  {
-    id: 2,
-    name: 'Kedai Kopi Anyar',
-    slug: 'kedai-kopi-anyar',
-    address: 'Boyolali, Jawa Tengah',
-    category: 'Cafe',
-  },
 ];
 
 export const promoInterests = {

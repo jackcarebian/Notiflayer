@@ -21,17 +21,23 @@ export function OutletsQrList({ outlets }: OutletsQrListProps) {
       setBaseUrl(window.location.origin);
     }
   }, []);
+  
+  const containerClasses = outlets.length > 1 
+    ? "grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+    : "flex justify-center";
 
   if (!baseUrl) {
     return (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-                <Card key={i}>
+        <div className={containerClasses}>
+            {outlets.map((outlet, i) => (
+                <Card key={i} className={outlets.length === 1 ? "w-full max-w-sm" : ""}>
                     <CardHeader>
-                        <div className="h-6 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                        <CardTitle>{outlet.name}</CardTitle>
+                        <CardDescription>{outlet.address}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col items-center justify-center gap-4">
-                        <div className="h-[200px] w-[200px] bg-gray-200 rounded-lg animate-pulse"></div>
+                        <div className="h-[216px] w-[216px] bg-gray-200 rounded-lg animate-pulse"></div>
+                         <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
                          <div className="h-10 bg-gray-200 rounded w-full animate-pulse"></div>
                     </CardContent>
                 </Card>
@@ -41,13 +47,13 @@ export function OutletsQrList({ outlets }: OutletsQrListProps) {
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div className={containerClasses}>
       {outlets.map((outlet) => {
         const registrationUrl = `${baseUrl}/reg/${outlet.slug}`;
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(registrationUrl)}&qzone=1`;
         
         return (
-          <Card key={outlet.id}>
+          <Card key={outlet.id} className={outlets.length === 1 ? "w-full max-w-sm" : ""}>
             <CardHeader>
               <CardTitle>{outlet.name}</CardTitle>
               <CardDescription>{outlet.address}</CardDescription>
