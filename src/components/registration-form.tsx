@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { promoInterests } from "@/lib/outlets";
 import type { Outlet } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { registerUserAction } from "@/app/actions";
+import { registerCustomerAction } from "@/app/actions";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
@@ -157,7 +158,7 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
         return;
     }
 
-    const result = await registerUserAction({ ...values, outletSlug: outlet.slug, fcmToken });
+    const result = await registerCustomerAction({ ...values, outletSlug: outlet.slug, fcmToken });
     
     if (result.success) {
       toast({

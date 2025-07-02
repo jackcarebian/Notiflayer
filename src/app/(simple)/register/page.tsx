@@ -20,15 +20,17 @@ export default function RegisterPage() {
         </CardHeader>
         <CardContent className="grid gap-6">
            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <Card className="flex flex-col items-center justify-center p-6 text-center hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
-                <h3 className="text-lg font-bold mb-2">Akun Demo</h3>
-                <p className="text-sm text-muted-foreground mb-4">Coba semua fitur Notiflayer gratis selama 30 hari.</p>
-                <Button className="w-full">Mulai Demo</Button>
-             </Card>
-             <Card className="flex flex-col items-center justify-center p-6 text-center hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
+            <Link href="/register/demo">
+                <Card className="flex flex-col items-center justify-center p-6 text-center h-full hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
+                    <h3 className="text-lg font-bold mb-2">Akun Demo</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Coba semua fitur Notiflayer gratis selama 30 hari.</p>
+                    <Button className="w-full mt-auto">Mulai Demo</Button>
+                </Card>
+            </Link>
+             <Card className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 cursor-not-allowed opacity-60">
                  <h3 className="text-lg font-bold mb-2">Akun Member</h3>
                 <p className="text-sm text-muted-foreground mb-4">Daftar untuk akun berbayar dan mulai kampanye Anda.</p>
-                <Button className="w-full">Daftar Member</Button>
+                <Button className="w-full mt-auto" disabled>Daftar Member</Button>
             </Card>
            </div>
           <div className="text-center text-sm">

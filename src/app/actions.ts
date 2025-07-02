@@ -1,8 +1,12 @@
+
 "use server";
 
 import { z } from "zod";
 
-const formSchema = z.object({
+// =================================================================
+// ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
+// =================================================================
+const customerFormSchema = z.object({
   name: z.string().min(2, { message: "Nama harus memiliki setidaknya 2 karakter." }),
   email: z.string().email({ message: "Format email tidak valid." }),
   preferences: z.record(z.array(z.string())).refine(
@@ -15,10 +19,10 @@ const formSchema = z.object({
   fcmToken: z.string().optional().nullable(),
 });
 
-type RegisterUserPayload = z.infer<typeof formSchema>;
+type RegisterCustomerPayload = z.infer<typeof customerFormSchema>;
 
-export async function registerUserAction(payload: RegisterUserPayload) {
-  const validation = formSchema.safeParse(payload);
+export async function registerCustomerAction(payload: RegisterCustomerPayload) {
+  const validation = customerFormSchema.safeParse(payload);
   
   if (!validation.success) {
     console.error("Validation failed:", validation.error.flatten().fieldErrors);
@@ -40,37 +44,83 @@ export async function registerUserAction(payload: RegisterUserPayload) {
     outlet: outletSlug,
   };
   
-  // =================================================================
-  // LOGIKA BACKEND: MENYIMPAN DATA KE FIRESTORE
-  // =================================================================
-  // Kode di bawah ini adalah contoh bagaimana Anda akan menyimpan data ke Firestore.
-  // Ini memerlukan konfigurasi Firebase Admin SDK di sisi server.
-  // 
-  // 1. Pastikan Anda sudah menginisialisasi Firebase Admin di aplikasi Anda.
-  //    (Biasanya dilakukan di file terpisah, misal: `src/lib/firebase-admin.ts`)
-  // 2. Impor 'db' dari file inisialisasi tersebut.
-  // 3. Gunakan 'addDoc' untuk menambahkan data baru.
+  console.log("Data pelanggan yang akan disimpan ke Firestore:", JSON.stringify(dataToSave, null, 2));
 
-  try {
-    // import { db } from '@/lib/firebase-admin';
-    // import { collection, addDoc } from 'firebase/firestore';
-    // const docRef = await addDoc(collection(db, "pelanggan"), dataToSave);
-    
-    // Untuk sekarang, kita hanya akan log ke konsol.
-    console.log("Data pelanggan yang akan disimpan ke Firestore:", JSON.stringify(dataToSave, null, 2));
-    // console.log("Data berhasil disimpan dengan ID:", docRef.id);
+  return {
+    success: true,
+    message: `Pendaftaran untuk ${name} berhasil!`,
+  };
+}
 
-    // Simulasi sukses
-    return {
-      success: true,
-      message: `Pendaftaran untuk ${name} berhasil!`,
-    };
 
-  } catch (error) {
-    console.error("Error saving to Firestore:", error);
+// =================================================================
+// ACTION UNTUK REGISTRASI OUTLET DEMO BARU
+// =================================================================
+const demoOutletFormSchema = z.object({
+  businessName: z.string().min(2, { message: "Nama bisnis minimal 2 karakter." }),
+  ownerName: z.string().min(2, { message: "Nama Anda minimal 2 karakter." }),
+  email: z.string().email({ message: "Format email tidak valid." }),
+  password: z.string().min(6, { message: "Password minimal 6 karakter." }),
+});
+
+type RegisterDemoOutletPayload = z.infer<typeof demoOutletFormSchema>;
+
+export async function registerDemoOutletAction(payload: RegisterDemoOutletPayload) {
+  const validation = demoOutletFormSchema.safeParse(payload);
+
+  if (!validation.success) {
     return {
       success: false,
-      message: "Terjadi kesalahan di server. Gagal menyimpan data.",
+      message: "Data yang dimasukkan tidak valid.",
+      errors: validation.error.flatten().fieldErrors,
     };
   }
+
+  const { businessName, ownerName, email } = validation.data;
+  const now = new Date();
+  const expiryDate = new Date(now.setDate(now.getDate() + 30));
+
+  const newOutletData = {
+    businessName,
+    ownerName,
+    email,
+    subscription: {
+      type: 'demo',
+      status: 'active',
+      startDate: new Date().toISOString(),
+      expiryDate: expiryDate.toISOString(),
+      campaignsUsed: 0,
+      campaignLimit: 1,
+    },
+    createdAt: new Date().toISOString(),
+  };
+
+  // --- LOGIKA BACKEND YANG SEBENARNYA ---
+  // Di aplikasi nyata, di sinilah Anda akan:
+  // 1. Menggunakan Firebase Auth untuk membuat user baru dengan email dan password.
+  //    const userRecord = await admin.auth().createUser({ email, password });
+  //
+  // 2. Membuat dokumen baru di koleksi 'outlets' (atau 'businesses') di Firestore.
+  //    const outletRef = await db.collection('outlets').add({
+  //      ...newOutletData,
+  //      ownerUid: userRecord.uid, // Tautkan outlet dengan UID pengguna
+  //    });
+  //
+  // 3. (Opsional) Membuat dokumen 'userProfile' untuk menyimpan info tambahan.
+  //    await db.collection('users').doc(userRecord.uid).set({
+  //      name: ownerName,
+  //      role: 'demo_user',
+  //      outletId: outletRef.id,
+  //    });
+  //
+  // 4. Setelah berhasil, kirim email selamat datang.
+
+  console.log("SIMULASI: Membuat outlet demo baru di backend...");
+  console.log(JSON.stringify(newOutletData, null, 2));
+  console.log("SIMULASI: Akun demo akan aktif hingga:", expiryDate.toLocaleDateString('id-ID'));
+
+  return {
+    success: true,
+    message: `Pendaftaran demo untuk ${businessName} berhasil! Silakan login untuk memulai.`,
+  };
 }
