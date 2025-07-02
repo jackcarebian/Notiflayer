@@ -73,7 +73,7 @@ function SidebarNav() {
       </div>
       <div className="mt-auto p-4 border-t border-gray-700">
          <Button variant="ghost" size="sm" asChild className="w-full justify-start text-gray-300 hover:bg-gray-700/50 hover:text-white">
-           <Link href="/login">
+           <Link href="/">
               <LogOut className="mr-2 h-4 w-4" />
               Logout
            </Link>
@@ -152,7 +152,7 @@ export default function AdminLayout({
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                 <Link href="/login">Logout</Link>
+                 <Link href="/">Logout</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
