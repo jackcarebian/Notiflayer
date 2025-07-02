@@ -23,7 +23,7 @@ export default function VendorLoginPage() {
             <br />
             Email: <span className="font-mono">jimmy.tjahyono@gmail.com</span>
             <br />
-            Pass: <span className="font-mono">+-Sejam#123</span>
+            Pass: <span className="font-mono">Database*123#</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -33,7 +33,7 @@ export default function VendorLoginPage() {
           </div>
           <div className="grid gap-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" defaultValue="+-Sejam#123" className="bg-gray-700 border-gray-600 text-white" />
+            <Input id="password" type="password" defaultValue="Database*123#" className="bg-gray-700 border-gray-600 text-white" />
           </div>
           <Button asChild className="w-full bg-primary hover:bg-primary/90">
             <Link href="/vendor">Login</Link>
