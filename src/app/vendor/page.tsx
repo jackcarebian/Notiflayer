@@ -1,14 +1,14 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database, Loader2 } from 'lucide-react';
+import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database, Loader2, Upload } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -35,33 +35,10 @@ const getStatusVariant = (status: string): "default" | "secondary" | "outline" |
 
 export default function VendorDashboardPage() {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
-  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
-
-  const handleBackup = () => {
-    if (selectedMembers.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Tidak ada member terpilih',
-        description: 'Silakan pilih setidaknya satu member untuk di-backup.',
-      });
-      return;
-    }
-    
-    setIsBackingUp(true);
-    console.log("SIMULASI: Memulai backup untuk member:", selectedMembers);
-    
-    setTimeout(() => {
-      toast({
-        title: 'Backup Dimulai',
-        description: `Proses backup untuk ${selectedMembers.length} member telah dimulai.`,
-      });
-      setIsBackingUp(false);
-      setIsDialogOpen(false);
-      setSelectedMembers([]);
-    }, 1500);
-  };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSelectMember = (memberId: string, checked: boolean) => {
     if (checked) {
@@ -69,6 +46,68 @@ export default function VendorDashboardPage() {
     } else {
       setSelectedMembers(prev => prev.filter(id => id !== memberId));
     }
+  };
+
+  const handleExport = () => {
+    if (selectedMembers.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Tidak ada member terpilih',
+        description: 'Silakan pilih setidaknya satu member untuk diekspor.',
+      });
+      return;
+    }
+    setIsProcessing(true);
+
+    const membersToExport = members.filter(m => selectedMembers.includes(m.id));
+    const headers = Object.keys(membersToExport[0]) as (keyof typeof members[0])[];
+    
+    const csvContent = [
+      headers.join(','),
+      ...membersToExport.map(member => 
+        headers.map(header => `"${member[header]}"`).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `notiflayer_members_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: 'Ekspor Berhasil',
+      description: `Data untuk ${selectedMembers.length} member telah diekspor.`,
+    });
+    
+    setIsProcessing(false);
+    setIsDialogOpen(false);
+    setSelectedMembers([]);
+  };
+
+  const handleRestoreClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+        toast({
+            title: 'Proses Restore Dimulai',
+            description: `Memulihkan data dari ${file.name}. Ini adalah simulasi.`,
+        });
+        console.log("SIMULASI: Membaca file CSV untuk restore:", file.name);
+    }
+    if(event.target) {
+      event.target.value = '';
+    }
+    setIsDialogOpen(false);
+    setSelectedMembers([]);
   };
 
   return (
@@ -150,22 +189,18 @@ export default function VendorDashboardPage() {
                 <CardDescription>Perform global database operations.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <Button className="w-full">
-                    <Download className="mr-2 h-4 w-4" />
-                    Export All Members (CSV)
-                </Button>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
                          <Button variant="outline" className="w-full">
                             <Database className="mr-2 h-4 w-4" />
-                            Backup Database
+                            Export / Restore Data
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Backup Database Member</DialogTitle>
+                            <DialogTitle>Export / Restore Data Member</DialogTitle>
                             <DialogDescription>
-                                Pilih member yang datanya ingin Anda backup. Proses ini akan berjalan di latar belakang.
+                                Pilih member untuk mengekspor data mereka, atau pulihkan data dari file CSV.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
@@ -183,17 +218,27 @@ export default function VendorDashboardPage() {
                                 </div>
                             ))}
                         </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Batal</Button>
-                            <Button onClick={handleBackup} disabled={isBackingUp || selectedMembers.length === 0}>
-                                {isBackingUp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Backup {selectedMembers.length > 0 ? `${selectedMembers.length} Member` : ''}
+                        <DialogFooter className="flex-col sm:flex-row gap-2">
+                             <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                accept=".csv"
+                                className="hidden"
+                            />
+                            <Button variant="outline" className="w-full sm:w-auto" onClick={handleRestoreClick}>
+                                <Upload className="mr-2 h-4 w-4" />
+                                Restore dari CSV
+                            </Button>
+                            <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isProcessing || selectedMembers.length === 0}>
+                                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                                Export {selectedMembers.length > 0 ? `${selectedMembers.length} Member` : 'Terpilih'}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
                  <p className="text-xs text-muted-foreground pt-2">
-                    Auto-backup harian dijadwalkan pada pukul 12 malam. Backup manual tersedia kapan saja.
+                    Auto-backup harian dijadwalkan pada pukul 12 malam. Export & restore manual tersedia kapan saja.
                 </p>
             </CardContent>
         </Card>
