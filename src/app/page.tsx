@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -54,11 +55,11 @@ const addons = [
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen flex-col bg-white text-gray-800">
-      <header className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center sticky top-0 bg-white/80 backdrop-blur-sm z-10 border-b">
+    <div className="flex min-h-screen flex-col bg-background font-body text-gray-800">
+      <header className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center sticky top-0 bg-background/80 backdrop-blur-sm z-10 border-b">
         <Link href="/" className="flex items-center gap-2">
           <MessageCircleCode className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold">Notiflayer</span>
+          <span className="text-2xl font-bold font-headline">Notiflayer</span>
         </Link>
         <nav className="flex items-center gap-4">
           <Button variant="ghost" asChild>
@@ -73,7 +74,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="text-center py-16 md:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight max-w-4xl mx-auto lg:text-5xl">
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight max-w-4xl mx-auto lg:text-5xl font-headline">
               Semua yang anda perlukan untuk memulai kampanye promo yang efektif dan sukses
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
@@ -87,12 +88,12 @@ export default function Home() {
             </div>
             <div className="mt-12 lg:mt-16">
                  <Image
-                    src="https://placehold.co/800x400.png"
+                    src="https://i.imghippo.com/files/ktR2325ouw.webp"
                     alt="Hero Image"
                     width={800}
                     height={400}
                     className="rounded-lg mx-auto"
-                    data-ai-hint="happy couple phone promotion"
+                    data-ai-hint="dashboard promotion"
                     priority
                 />
             </div>
@@ -102,14 +103,14 @@ export default function Home() {
         <section id="how-it-works" className="py-20 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">Bagaimana Cara Kerjanya?</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 font-headline">Bagaimana Cara Kerjanya?</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {howItWorksSteps.map((step) => (
                 <Card key={step.title} className="p-6 text-left">
                   <div className="flex items-center gap-3 mb-3">
                       {step.icon}
-                      <h3 className="text-xl font-bold text-gray-800">{step.title}</h3>
+                      <h3 className="text-xl font-bold text-gray-800 font-headline">{step.title}</h3>
                   </div>
                   <p className="text-gray-600">{step.description}</p>
                 </Card>
@@ -121,7 +122,7 @@ export default function Home() {
         <section id="features" className="bg-slate-50 py-20 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold">Fitur Unggulan</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold font-headline">Fitur Unggulan</h2>
               <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Temukan fitur canggih yang kami tawarkan untuk memberdayakan strategi pemasaran anda.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -129,7 +130,7 @@ export default function Home() {
                 <Card key={feature.title} className="text-center">
                   <CardHeader>
                     <div className="flex justify-center mb-4">{feature.icon}</div>
-                    <CardTitle>{feature.title}</CardTitle>
+                    <CardTitle className="font-headline">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-gray-600">{feature.description}</p>
@@ -143,7 +144,7 @@ export default function Home() {
         <section id="pricing" className="py-20 lg:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold">Langganan Kode QR</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold font-headline">Langganan Kode QR</h2>
               <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Buka potensi penuh bisnis Anda dengan paket langganan yang paling sesuai.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
@@ -154,7 +155,7 @@ export default function Home() {
                      <div className="p-4 bg-primary/10 rounded-full mb-4">
                         {plan.icon}
                      </div>
-                    <CardTitle>{plan.title}</CardTitle>
+                    <CardTitle className="font-headline">{plan.title}</CardTitle>
                     <div className="text-4xl font-bold my-4">Rp {plan.price}<span className="text-lg font-normal text-gray-500">/bulan</span></div>
                   </CardHeader>
                   <CardContent className="flex-grow">
@@ -179,7 +180,7 @@ export default function Home() {
         <section id="addons" className="bg-slate-50 py-20 lg:py-24">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                  <div className="text-center mb-12">
-                    <h2 className="text-3xl lg:text-4xl font-bold">Biaya Penambahan Fleksibel (Add-on)</h2>
+                    <h2 className="text-3xl lg:text-4xl font-bold font-headline">Biaya Penambahan Fleksibel (Add-on)</h2>
                     <p className="mt-4 text-lg text-gray-600">Untuk Member "Banyak Cabang" & "Multi Bisnis"</p>
                 </div>
                 <Card className="overflow-hidden">
@@ -239,3 +240,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
