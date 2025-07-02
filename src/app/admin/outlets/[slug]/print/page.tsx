@@ -6,21 +6,28 @@ import { outlets } from '@/lib/outlets';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Bell, Printer, ScanLine } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function PrintQrPage() {
   const params = useParams();
   const slug = params.slug as string;
   const outlet = outlets.find((o) => o.slug === slug);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    // This code runs only on the client, after the component has mounted.
+    if (typeof window !== 'undefined' && outlet) {
+      const registrationUrl = `${window.location.origin}/reg/${outlet.slug}`;
+      const url = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(
+        registrationUrl
+      )}&qzone=2`;
+      setQrCodeUrl(url);
+    }
+  }, [outlet, slug]);
 
   if (!outlet) {
     notFound();
   }
-
-  const registrationUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/reg/${outlet.slug}`
-      : '';
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(registrationUrl)}&qzone=2`;
 
   return (
     <div className="min-h-screen bg-white text-gray-800 font-sans">
@@ -49,7 +56,7 @@ export default function PrintQrPage() {
                 <ScanLine className="h-7 w-7" />
              </div>
             <div className="mt-4 p-4 border-4 border-dashed border-gray-200 rounded-2xl bg-white">
-                {qrCodeUrl && (
+                {qrCodeUrl ? (
                     <Image
                         src={qrCodeUrl}
                         alt={`QR Code untuk ${outlet.name}`}
@@ -58,6 +65,10 @@ export default function PrintQrPage() {
                         priority
                         data-ai-hint="qr code"
                     />
+                ) : (
+                  <div className="w-[300px] h-[300px] bg-gray-100 animate-pulse rounded-lg flex items-center justify-center">
+                    <p className="text-sm text-gray-500">Membuat Kode QR...</p>
+                  </div>
                 )}
             </div>
           </div>
