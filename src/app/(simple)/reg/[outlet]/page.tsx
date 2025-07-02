@@ -1,19 +1,16 @@
+
 'use client';
 
 import { RegistrationForm } from '@/components/registration-form';
 import { outlets } from '@/lib/outlets';
 import { MessageCircleCode } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 
-type Props = {
-  params: {
-    outlet: string;
-  };
-};
-
-export default function RegistrationPage({ params }: Props) {
-  const outlet = outlets.find((o) => o.slug === params.outlet);
+export default function RegistrationPage() {
+  const params = useParams();
+  const outletSlug = params.outlet as string;
+  const outlet = outlets.find((o) => o.slug === outletSlug);
 
   if (!outlet) {
     notFound();
