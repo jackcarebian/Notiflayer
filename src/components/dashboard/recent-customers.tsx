@@ -14,9 +14,6 @@ import {
 
   const customers = [
     { name: 'Olivia Martin', email: 'olivia.martin@email.com', interests: ['Cafe', 'Resto'], outlet: 'Cafe Inyong' },
-    { name: 'Jackson Lee', email: 'jackson.lee@email.com', interests: ['Kedai'], outlet: 'Kedai Kopi Inyong' },
-    { name: 'Isabella Nguyen', email: 'isabella.nguyen@email.com', interests: ['Aksesoris'], outlet: 'Ayu Aksesoris' },
-    { name: 'William Kim', email: 'will@email.com', interests: ['Resto'], outlet: 'Madhang Enak' },
     { name: 'Sofia Davis', email: 'sofia.davis@email.com', interests: ['Cafe'], outlet: 'Cafe Inyong' },
   ]
   
@@ -26,7 +23,7 @@ import {
         <CardHeader>
           <CardTitle>Pelanggan Terbaru</CardTitle>
           <CardDescription>
-            26 pelanggan baru mendaftar hari ini.
+            Menampilkan pelanggan yang baru saja mendaftar.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-8">

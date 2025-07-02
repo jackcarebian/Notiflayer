@@ -29,9 +29,6 @@ const customerChartData = [
 
 const outletChartData = [
     { outlet: "Cafe Inyong", customers: 850, fill: "var(--color-chart-1)" },
-    { outlet: "Madhang Enak", customers: 630, fill: "var(--color-chart-2)" },
-    { outlet: "Kedai Kopi Inyong", customers: 450, fill: "var(--color-chart-3)" },
-    { outlet: "Ayu Aksesoris", customers: 459, fill: "var(--color-chart-4)" },
 ]
 
 const chartConfig = {
@@ -45,18 +42,6 @@ const chartConfig = {
   "Cafe Inyong": {
     label: "Cafe Inyong",
     color: "hsl(var(--chart-1))",
-  },
-  "Madhang Enak": {
-    label: "Madhang Enak",
-    color: "hsl(var(--chart-2))",
-  },
-  "Kedai Kopi Inyong": {
-    label: "Kedai Kopi",
-    color: "hsl(var(--chart-3))",
-  },
-  "Ayu Aksesoris": {
-    label: "Ayu Aksesoris",
-    color: "hsl(var(--chart-4))",
   },
 }
 

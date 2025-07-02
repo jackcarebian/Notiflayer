@@ -8,27 +8,6 @@ export const outlets: Outlet[] = [
     address: 'Jl. Pahlawan No. 123, Kota Tegal',
     category: 'Cafe',
   },
-  {
-    id: 2,
-    name: 'Madhang Enak',
-    slug: 'madhang-enak',
-    address: 'Jl. Kartini No. 45, Kota Brebes',
-    category: 'Resto',
-  },
-  {
-    id: 3,
-    name: 'Kedai Kopi Inyong',
-    slug: 'kedai-kopi-inyong',
-    address: 'Jl. Gajah Mada No. 88, Kota Slawi',
-    category: 'Kedai',
-  },
-  {
-    id: 4,
-    name: 'Ayu Aksesoris',
-    slug: 'ayu-aksesoris',
-    address: 'Jl. Merdeka No. 1, Kota Pemalang',
-    category: 'Aksesoris',
-  },
 ];
 
 export const promoInterests = {
