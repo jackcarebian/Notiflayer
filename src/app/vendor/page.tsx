@@ -23,6 +23,19 @@ const members = [
   { id: 'usr_005', businessName: 'Eka Galeri', owner: 'Eka Putri', email: 'ekagaleri@gmail.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-08-01' },
 ];
 
+const allCustomers = [
+    { customerId: 'cust_101', memberId: 'usr_001', name: 'Ahmad Dahlan', email: 'ahmad.d@example.com', outlet: 'Cafe Inyong', interests: ["Promo Makanan", "Diskon Spesial Hari Tertentu"] },
+    { customerId: 'cust_102', memberId: 'usr_001', name: 'Siti Aminah', email: 'siti.a@example.com', outlet: 'Cafe Inyong', interests: ["Promo Minuman", "Menu Baru"] },
+    { customerId: 'cust_103', memberId: 'usr_002', name: 'Charlie', email: 'charlie@example.com', outlet: 'Kedai Kopi Anyar', interests: ["Promo Minuman"] },
+];
+
+const allCampaigns = [
+    { campaignId: 'camp_abc', memberId: 'usr_001', name: 'Promo Nonton Bola Bareng', status: 'Sedang Berlangsung' },
+    { campaignId: 'camp_def', memberId: 'usr_001', name: 'Diskon Liburan Sekolah Ceria', status: 'Akan Datang' },
+    { campaignId: 'camp_ghi', memberId: 'usr_002', name: 'Flash Sale Kopi 7.7', status: 'Berakhir' },
+];
+
+
 const getStatusVariant = (status: string): "default" | "secondary" | "outline" | "destructive" | null | undefined => {
     switch (status) {
         case 'Active': return 'default';
@@ -60,20 +73,24 @@ export default function VendorDashboardPage() {
     setIsProcessing(true);
 
     const membersToExport = members.filter(m => selectedMembers.includes(m.id));
-    const headers = Object.keys(membersToExport[0]) as (keyof typeof members[0])[];
-    
-    const csvContent = [
-      headers.join(','),
-      ...membersToExport.map(member => 
-        headers.map(header => `"${member[header]}"`).join(',')
-      )
-    ].join('\n');
+    const customersToExport = allCustomers.filter(c => selectedMembers.includes(c.memberId));
+    const campaignsToExport = allCampaigns.filter(c => selectedMembers.includes(c.memberId));
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const backupData = {
+        exportedAt: new Date().toISOString(),
+        data: {
+            members: membersToExport,
+            customers: customersToExport,
+            campaigns: campaignsToExport,
+        }
+    };
+    
+    const jsonContent = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `notiflayer_members_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `notiflayer_backup_${new Date().toISOString().split('T')[0]}.json`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -82,7 +99,7 @@ export default function VendorDashboardPage() {
 
     toast({
       title: 'Ekspor Berhasil',
-      description: `Data untuk ${selectedMembers.length} member telah diekspor.`,
+      description: `Backup data untuk ${selectedMembers.length} member telah diunduh.`,
     });
     
     setIsProcessing(false);
@@ -97,11 +114,31 @@ export default function VendorDashboardPage() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-        toast({
-            title: 'Proses Restore Dimulai',
-            description: `Memulihkan data dari ${file.name}. Ini adalah simulasi.`,
-        });
-        console.log("SIMULASI: Membaca file CSV untuk restore:", file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const text = e.target?.result;
+                if (typeof text !== 'string') throw new Error("File could not be read");
+                
+                const data = JSON.parse(text);
+                const { members: restoredMembers, customers: restoredCustomers, campaigns: restoredCampaigns } = data.data;
+
+                toast({
+                    title: 'Proses Restore Dimulai',
+                    description: `Memulihkan ${restoredMembers?.length || 0} member, ${restoredCustomers?.length || 0} pelanggan, dan ${restoredCampaigns?.length || 0} kampanye dari ${file.name}. Ini adalah simulasi.`,
+                });
+                console.log("SIMULASI: Data yang akan di-restore:", data);
+
+            } catch (error) {
+                console.error("Error parsing restore file:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Gagal Membaca File',
+                    description: 'File backup tidak valid atau rusak. Pastikan file dalam format JSON yang benar.'
+                });
+            }
+        };
+        reader.readAsText(file);
     }
     if(event.target) {
       event.target.value = '';
@@ -200,7 +237,7 @@ export default function VendorDashboardPage() {
                         <DialogHeader>
                             <DialogTitle>Export / Restore Data Member</DialogTitle>
                             <DialogDescription>
-                                Pilih member untuk mengekspor data mereka, atau pulihkan data dari file CSV.
+                                Pilih member untuk mengekspor data mereka (termasuk pelanggan & kampanye), atau pulihkan dari file backup JSON.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
@@ -223,16 +260,16 @@ export default function VendorDashboardPage() {
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
-                                accept=".csv"
+                                accept=".json"
                                 className="hidden"
                             />
                             <Button variant="outline" className="w-full sm:w-auto" onClick={handleRestoreClick}>
                                 <Upload className="mr-2 h-4 w-4" />
-                                Restore dari CSV
+                                Restore dari File
                             </Button>
                             <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isProcessing || selectedMembers.length === 0}>
                                 {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                                Export {selectedMembers.length > 0 ? `${selectedMembers.length} Member` : 'Terpilih'}
+                                Export Backup {selectedMembers.length > 0 ? `(${selectedMembers.length})` : ''}
                             </Button>
                         </DialogFooter>
                     </DialogContent>
@@ -246,3 +283,4 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
+
