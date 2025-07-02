@@ -53,7 +53,7 @@ const generatePromoIdeaFlow = ai.defineFlow(
     outputSchema: GeneratePromoIdeaOutputSchema,
   },
   async (input) => {
-    const {output} = await prompt(input);
+    const {output} = await promoIdeaPrompt(input);
     return output!;
   }
 );
