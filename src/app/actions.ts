@@ -91,6 +91,7 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
       expiryDate: expiryDate.toISOString(),
       campaignsUsed: 0,
       campaignLimit: 1,
+      campaignDurationLimit: 14, // Batas durasi kampanye 2 minggu
     },
     createdAt: new Date().toISOString(),
   };

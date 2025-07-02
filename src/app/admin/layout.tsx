@@ -1,3 +1,6 @@
+
+"use client";
+
 import Link from "next/link";
 import {
   Bell,
@@ -10,6 +13,8 @@ import {
   QrCode,
   LogOut,
   Menu,
+  CreditCard,
+  Rocket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +35,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { useState } from "react";
 
 const navItems = [
   { href: "/admin", icon: <LayoutGrid className="h-5 w-5" />, label: "Dashboard" },
@@ -39,6 +45,7 @@ const navItems = [
   { href: "/admin/ai-tools", icon: <BrainCircuit className="h-5 w-5" />, label: "Tool Pemasaran AI" },
   { href: "/admin/cashier", icon: <Receipt className="h-5 w-5" />, label: "Kasir" },
   { href: "/admin/outlets", icon: <QrCode className="h-5 w-5" />, label: "QR Outlet" },
+  { href: "/admin/upgrade", icon: <CreditCard className="h-5 w-5" />, label: "Upgrade" },
 ];
 
 function SidebarNav() {
@@ -76,11 +83,32 @@ function SidebarNav() {
   )
 }
 
+function TrialExpiredOverlay() {
+  return (
+    <div className="absolute inset-0 z-40 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center text-center p-8">
+      <div className="bg-white/90 p-10 rounded-xl shadow-2xl max-w-lg">
+        <Rocket className="h-16 w-16 text-primary mx-auto mb-4" />
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">Masa Percobaan Demo Anda Telah Berakhir</h2>
+        <p className="text-gray-600 mb-6">
+          Terima kasih telah mencoba Notiflayer! Untuk terus menggunakan semua fitur canggih kami tanpa batas, silakan upgrade ke paket berlangganan.
+        </p>
+        <Button asChild size="lg">
+          <Link href="/admin/upgrade">Upgrade Sekarang</Link>
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // SIMULASI: Ganti nilai ini untuk menguji overlay.
+  // Di aplikasi nyata, ini akan berasal dari data pengguna/database.
+  const [isTrialExpired] = useState(true);
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <aside className="hidden border-r border-gray-700 bg-gray-900 text-white md:block">
@@ -128,8 +156,11 @@ export default function AdminLayout({
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-100/40">
-          {children}
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-100/40 relative">
+          {isTrialExpired && <TrialExpiredOverlay />}
+          <div className={isTrialExpired ? 'blur-sm pointer-events-none' : ''}>
+            {children}
+          </div>
         </main>
       </div>
     </div>
