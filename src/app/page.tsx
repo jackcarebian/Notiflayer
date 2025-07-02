@@ -88,7 +88,7 @@ export default function Home() {
             </div>
             <div className="mt-12 lg:mt-16">
                  <Image
-                    src="https://i.imghippo.com/files/ktR2325ouw.webp"
+                    src="https://i.imghippo.com/files/jQ2673iF.webp"
                     alt="Hero Image"
                     width={800}
                     height={400}
