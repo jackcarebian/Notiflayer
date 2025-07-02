@@ -1,10 +1,18 @@
+
+'use client';
+
+import { useState } from 'react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database } from 'lucide-react';
+import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database, Loader2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data for the vendor dashboard
 const members = [
@@ -26,6 +34,43 @@ const getStatusVariant = (status: string): "default" | "secondary" | "outline" |
 };
 
 export default function VendorDashboardPage() {
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [isBackingUp, setIsBackingUp] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleBackup = () => {
+    if (selectedMembers.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Tidak ada member terpilih',
+        description: 'Silakan pilih setidaknya satu member untuk di-backup.',
+      });
+      return;
+    }
+    
+    setIsBackingUp(true);
+    console.log("SIMULASI: Memulai backup untuk member:", selectedMembers);
+    
+    setTimeout(() => {
+      toast({
+        title: 'Backup Dimulai',
+        description: `Proses backup untuk ${selectedMembers.length} member telah dimulai.`,
+      });
+      setIsBackingUp(false);
+      setIsDialogOpen(false);
+      setSelectedMembers([]);
+    }, 1500);
+  };
+
+  const handleSelectMember = (memberId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedMembers(prev => [...prev, memberId]);
+    } else {
+      setSelectedMembers(prev => prev.filter(id => id !== memberId));
+    }
+  };
+
   return (
     <div className="space-y-8">
        <div>
@@ -109,12 +154,46 @@ export default function VendorDashboardPage() {
                     <Download className="mr-2 h-4 w-4" />
                     Export All Members (CSV)
                 </Button>
-                <Button variant="outline" className="w-full">
-                     <Database className="mr-2 h-4 w-4" />
-                     Backup Database
-                </Button>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                         <Button variant="outline" className="w-full">
+                            <Database className="mr-2 h-4 w-4" />
+                            Backup Database
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Backup Database Member</DialogTitle>
+                            <DialogDescription>
+                                Pilih member yang datanya ingin Anda backup. Proses ini akan berjalan di latar belakang.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                            {members.map(member => (
+                                <div key={member.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted">
+                                    <Checkbox 
+                                        id={`backup-${member.id}`}
+                                        onCheckedChange={(checked) => handleSelectMember(member.id, checked as boolean)}
+                                        checked={selectedMembers.includes(member.id)}
+                                    />
+                                    <Label htmlFor={`backup-${member.id}`} className="flex-1 cursor-pointer">
+                                        <span className="font-medium">{member.businessName}</span>
+                                        <p className="text-xs text-muted-foreground">{member.email}</p>
+                                    </Label>
+                                </div>
+                            ))}
+                        </div>
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Batal</Button>
+                            <Button onClick={handleBackup} disabled={isBackingUp || selectedMembers.length === 0}>
+                                {isBackingUp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Backup {selectedMembers.length > 0 ? `${selectedMembers.length} Member` : ''}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                  <p className="text-xs text-muted-foreground pt-2">
-                    Regular backups are recommended. Exports are useful for external analysis.
+                    Auto-backup harian dijadwalkan pada pukul 12 malam. Backup manual tersedia kapan saja.
                 </p>
             </CardContent>
         </Card>
