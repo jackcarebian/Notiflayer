@@ -1,10 +1,78 @@
+
+'use client';
+
+import { useState } from 'react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Megaphone, BarChart3, Edit, User, Calendar, RefreshCw } from 'lucide-react';
+import { Users, Megaphone, BarChart3, Edit, User, Calendar, RefreshCw, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useToast } from "@/hooks/use-toast";
 
 export default function AdminDashboardPage() {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { toast } = useToast();
+
+  const handleClearCache = async () => {
+    setIsRefreshing(true);
+    toast({
+      title: "Memulai proses...",
+      description: "Membersihkan cache dan service worker.",
+    });
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (registrations.length) {
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+          toast({
+            title: "Service Worker Dihapus",
+            description: "Semua service worker berhasil dihapus.",
+          });
+        } else {
+            toast({
+                title: "Tidak Ada Service Worker",
+                description: "Tidak ada service worker aktif yang ditemukan untuk dihapus.",
+            });
+        }
+      } else {
+         toast({
+            title: "Service Worker Tidak Didukung",
+            description: "Browser Anda tidak mendukung service worker.",
+        });
+      }
+
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+        toast({
+          title: "Cache Dibersihkan",
+          description: "Cache browser berhasil dibersihkan.",
+        });
+      }
+
+      toast({
+        title: "Selesai!",
+        description: "Memuat ulang halaman sekarang...",
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch (error) {
+      console.error("Gagal membersihkan cache:", error);
+      toast({
+        variant: "destructive",
+        title: "Gagal Membersihkan Cache",
+        description: "Terjadi kesalahan saat mencoba membersihkan cache.",
+      });
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="space-y-8">
        <div>
@@ -68,9 +136,13 @@ export default function AdminDashboardPage() {
                 <CardDescription>Alat untuk pemeliharaan dan pemecahan masalah.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Button>
-                    <RefreshCw className="mr-2 h-4 w-4"/>
-                    Bersihkan Cache & Segarkan
+                <Button onClick={handleClearCache} disabled={isRefreshing}>
+                    {isRefreshing ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <RefreshCw className="mr-2 h-4 w-4"/>
+                    )}
+                    {isRefreshing ? "Membersihkan..." : "Bersihkan Cache & Segarkan"}
                 </Button>
                 <p className="text-xs text-muted-foreground mt-2">
                   Gunakan ini jika Anda mengalami masalah dengan data yang usang atau notifikasi. Ini akan menghapus paksa service worker dan memuat ulang halaman.
