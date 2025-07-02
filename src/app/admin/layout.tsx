@@ -106,8 +106,9 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   // SIMULASI: Ganti nilai ini untuk menguji overlay.
-  // Di aplikasi nyata, ini akan berasal dari data pengguna/database.
-  const [isTrialExpired] = useState(true);
+  // Di aplikasi nyata, nilai ini akan berasal dari database (misalnya, `user.subscription.status !== 'active'`).
+  // Setelah upgrade, status di database akan diperbarui dan overlay ini tidak akan muncul lagi.
+  const [isTrialExpired] = useState(false);
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
