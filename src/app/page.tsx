@@ -1,9 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Check, MessageCircleCode, QrCode, Send, LayoutGrid, Users, BrainCircuit, ClipboardCheck, Store, Building2, Globe } from 'lucide-react';
+import { Check, MessageCircleCode, QrCode, Send, LayoutGrid, Users, BrainCircuit, ClipboardCheck, Store, Building2, Globe, Zap, Rocket, MessageSquareText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+
+const howItWorksSteps = [
+  { icon: <Zap className="w-8 h-8 text-primary" />, title: "Pelanggan Scan QR", description: "Pelanggan memindai QR code di outlet Anda, mengisi form minat singkat, dan mengizinkan notifikasi browser." },
+  { icon: <Rocket className="w-8 h-8 text-primary" />, title: "Anda Kirim Promo", description: "Anda membuat dan mengirimkan kampanye promosi langsung dari dashboard Notiflayer yang mudah digunakan." },
+  { icon: <MessageSquareText className="w-8 h-8 text-primary" />, title: "Notifikasi Diterima", description: "Pelanggan menerima notifikasi promo Anda langsung di browser mereka, siap untuk diredeem di kasir." },
+];
 
 const features = [
   { icon: <QrCode className="w-8 h-8 text-primary" />, title: "Akses Kode QR", description: "Perluas jangkauan Anda dengan kode QR unik untuk formulir pendaftaran Anda." },
@@ -67,7 +73,7 @@ export default function Home() {
       <main className="flex-1">
         <section className="text-center py-16 md:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight max-w-4xl mx-auto">
+            <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight max-w-4xl mx-auto lg:text-5xl">
               Semua yang anda perlukan untuk memulai kampanye promo yang efektif dan sukses
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
@@ -89,6 +95,25 @@ export default function Home() {
                     data-ai-hint="happy couple phone promotion"
                     priority
                 />
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="py-20 lg:py-24">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">Bagaimana Cara Kerjanya?</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {howItWorksSteps.map((step) => (
+                <Card key={step.title} className="p-6 text-left">
+                  <div className="flex items-center gap-3 mb-3">
+                      {step.icon}
+                      <h3 className="text-xl font-bold text-gray-800">{step.title}</h3>
+                  </div>
+                  <p className="text-gray-600">{step.description}</p>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
