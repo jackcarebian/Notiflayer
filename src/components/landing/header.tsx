@@ -8,19 +8,22 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Logo />
         <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-          <Link href="#features" className="text-foreground/70 transition-colors hover:text-foreground">
+          <Link href="#fitur" className="text-foreground/70 transition-colors hover:text-foreground">
             Fitur
           </Link>
-          <Link href="#demo" className="text-foreground/70 transition-colors hover:text-foreground">
-            Demo
+          <Link href="#harga" className="text-foreground/70 transition-colors hover:text-foreground">
+            Harga
+          </Link>
+          <Link href="/login" className="text-foreground/70 transition-colors hover:text-foreground">
+            Login
           </Link>
           <Button asChild>
-            <Link href="/login">Dashboard</Link>
+            <Link href="/login">Coba Gratis</Link>
           </Button>
         </nav>
         <div className="md:hidden">
             <Button asChild>
-                <Link href="/login">Dashboard</Link>
+                <Link href="/login">Coba Gratis</Link>
             </Button>
         </div>
       </div>

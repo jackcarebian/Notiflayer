@@ -1,7 +1,5 @@
-import { StatCard } from '@/components/dashboard/stat-card';
-import { CustomerCharts } from '@/components/dashboard/charts';
-import { RecentCustomers } from '@/components/dashboard/recent-customers';
-import { Users, UserPlus, BellRing, TicketCheck } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Lightbulb } from "lucide-react";
 
 export default function AdminDashboardPage() {
   return (
@@ -9,20 +7,20 @@ export default function AdminDashboardPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold font-headline tracking-tight">Dashboard</h2>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Pelanggan" value="2,389" icon={<Users />} />
-        <StatCard title="Baru Hari Ini" value="+26" icon={<UserPlus />} />
-        <StatCard title="Izin Notifikasi" value="1,892" icon={<BellRing />} />
-        <StatCard title="Sudah Redeem" value="678" icon={<TicketCheck />} />
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="col-span-4">
-          <CustomerCharts />
-        </div>
-        <div className="col-span-4 lg:col-span-3">
-          <RecentCustomers />
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Selamat Datang di Dasbor Anda!</CardTitle>
+          <CardDescription>Ini adalah pusat kendali untuk kampanye promosi Anda.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center p-6 bg-secondary rounded-lg">
+            <Lightbulb className="h-8 w-8 mr-4 text-primary" />
+            <p className="text-foreground">
+              Gunakan menu di sebelah kiri untuk mengelola Outlet, membuat Kampanye baru, dan melihat data Pelanggan.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
