@@ -65,7 +65,7 @@ export default function Home() {
             <Link href="/login">Login</Link>
           </Button>
           <Button asChild>
-            <Link href="/login">Coba Gratis</Link>
+            <Link href="/register">Coba Gratis</Link>
           </Button>
         </nav>
       </header>
@@ -82,7 +82,7 @@ export default function Home() {
             </p>
             <div className="mt-8">
               <Button size="lg" asChild>
-                <Link href="/login">Mulai Sekarang</Link>
+                <Link href="/register">Mulai Sekarang</Link>
               </Button>
             </div>
             <div className="mt-12 lg:mt-16">
