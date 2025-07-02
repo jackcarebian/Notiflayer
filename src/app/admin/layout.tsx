@@ -1,78 +1,24 @@
-"use client"
-import Link from "next/link"
-import {
-  LayoutDashboard,
-  QrCode,
-  LogOut,
-  Send
-} from "lucide-react"
-
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarProvider,
-  SidebarInset
-} from "@/components/ui/sidebar"
-import { Logo } from "@/components/logo"
-import { usePathname } from "next/navigation"
+import Link from "next/link";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarContent>
-          <SidebarHeader>
-            <Logo />
-          </SidebarHeader>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname === '/admin'}>
-                <Link href="/admin">
-                  <LayoutDashboard />
-                  Dashboard
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/outlets')}>
-                <Link href="/admin/outlets">
-                  <QrCode />
-                  Outlets
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/campaign')}>
-                <Link href="/admin/campaign">
-                  <Send />
-                  Kampanye
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/">
-                  <LogOut />
-                  Logout
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>
+    <div className="flex min-h-screen">
+      <aside className="w-64 bg-gray-100 p-4 border-r">
+        <h2 className="font-bold text-xl mb-4">Notiflayer</h2>
+        <nav className="flex flex-col gap-2">
+          <Link href="/admin" className="hover:underline">Dashboard</Link>
+          <Link href="/admin/outlets" className="hover:underline">Outlets</Link>
+          <Link href="/admin/campaign" className="hover:underline">Campaigns</Link>
+          <Link href="/" className="hover:underline mt-4">Logout</Link>
+        </nav>
+      </aside>
+      <main className="flex-1 p-8">
         {children}
-      </SidebarInset>
-    </SidebarProvider>
-  )
+      </main>
+    </div>
+  );
 }

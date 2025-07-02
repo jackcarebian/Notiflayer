@@ -4,8 +4,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'Notiflayer – Platform Promosi Modern',
-  description: 'Semua yang Anda butuhkan untuk menjalankan kampanye promosi yang berhasil.',
+  title: 'Notiflayer',
+  description: 'Layanan Notifikasi Promo Lokal',
 };
 
 export default function RootLayout({
@@ -15,13 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-        <link rel="manifest" href="/manifest.json" />
-      </head>
-      <body className="font-body antialiased">
+      <body>
         {children}
         <Toaster />
       </body>

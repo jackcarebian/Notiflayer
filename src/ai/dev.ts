@@ -1,4 +1,4 @@
 import { config } from 'dotenv';
 config();
 
-import '@/ai/flows/validate-registration-data.ts';
+// AI flows will be imported here for development.
