@@ -40,7 +40,7 @@ const chartConfig = {
   },
   newCustomers: {
     label: "Pelanggan Baru",
-    color: "hsl(var(--chart-1))",
+    color: "hsl(var(--primary))",
   },
   "Cafe Inyong": {
     label: "Cafe Inyong",

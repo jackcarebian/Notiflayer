@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { outlets } from "@/lib/outlets";
-import { Send, Upload } from "lucide-react";
+import { Send } from "lucide-react";
 
 export function CampaignForm() {
   const [title, setTitle] = useState("");
@@ -52,7 +52,7 @@ export function CampaignForm() {
   return (
     <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Buat Kampanye Baru</CardTitle>
+        <CardTitle>Detail Kampanye</CardTitle>
         <CardDescription>
           Isi detail di bawah ini untuk dikirim sebagai notifikasi push.
         </CardDescription>
