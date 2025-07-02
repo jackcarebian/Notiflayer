@@ -1,3 +1,4 @@
+
 import type { Outlet } from './types';
 
 export const outlets: Outlet[] = [
@@ -6,6 +7,13 @@ export const outlets: Outlet[] = [
     name: 'Cafe Inyong',
     slug: 'cafe-inyong',
     address: 'Jl. Pahlawan No. 123, Kota Tegal',
+    category: 'Cafe',
+  },
+  {
+    id: 2,
+    name: 'Kedai Kopi Anyar',
+    slug: 'kedai-kopi-anyar',
+    address: 'Boyolali, Jawa Tengah',
     category: 'Cafe',
   },
 ];
