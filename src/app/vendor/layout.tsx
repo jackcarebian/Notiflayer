@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   LayoutGrid,
   Users,
@@ -30,12 +33,13 @@ import {
 
 const navItems = [
   { href: "/vendor", icon: <LayoutGrid className="h-5 w-5" />, label: "Dashboard" },
-  { href: "#", icon: <Users className="h-5 w-5" />, label: "Members" },
-  { href: "#", icon: <BarChart className="h-5 w-5" />, label: "Analytics" },
-  { href: "#", icon: <Settings className="h-5 w-5" />, label: "Settings" },
+  { href: "/vendor/members", icon: <Users className="h-5 w-5" />, label: "Members" },
+  { href: "/vendor/analytics", icon: <BarChart className="h-5 w-5" />, label: "Analytics" },
+  { href: "/vendor/settings", icon: <Settings className="h-5 w-5" />, label: "Settings" },
 ];
 
 function VendorSidebarNav() {
+  const router = useRouter();
   return (
     <div className="flex h-full max-h-screen flex-col gap-2">
       <div className="flex h-14 items-center border-b border-gray-700 px-4 lg:h-[60px] lg:px-6">
@@ -59,11 +63,9 @@ function VendorSidebarNav() {
         </nav>
       </div>
       <div className="mt-auto p-4 border-t border-gray-700">
-         <Button asChild variant="ghost" size="sm" className="w-full justify-start text-gray-300 hover:bg-gray-700/50 hover:text-white">
-            <Link href="/">
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Link>
+         <Button onClick={() => router.push('/')} variant="ghost" size="sm" className="w-full justify-start text-gray-300 hover:bg-gray-700/50 hover:text-white">
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
         </Button>
       </div>
     </div>
@@ -75,6 +77,7 @@ export default function VendorLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <aside className="hidden border-r border-gray-700 bg-gray-900 text-white md:block">
@@ -115,8 +118,8 @@ export default function VendorLayout({
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/">Logout</Link>
+              <DropdownMenuItem onClick={() => router.push('/')}>
+                Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
