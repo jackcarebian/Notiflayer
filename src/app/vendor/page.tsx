@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database, Loader2, Upload } from 'lucide-react';
+import { BarChart, Users, Clock, MoreHorizontal, CheckCircle, Trash2, Download, Database, Loader2, Upload, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -69,8 +69,70 @@ export default function VendorDashboardPage() {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClearCache = async () => {
+    setIsRefreshing(true);
+    toast({
+      title: "Memulai proses...",
+      description: "Membersihkan cache dan service worker.",
+    });
+
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (registrations.length) {
+          for (const registration of registrations) {
+            await registration.unregister();
+          }
+          toast({
+            title: "Service Worker Dihapus",
+            description: "Semua service worker berhasil dihapus.",
+          });
+        } else {
+            toast({
+                title: "Tidak Ada Service Worker",
+                description: "Tidak ada service worker aktif yang ditemukan untuk dihapus.",
+            });
+        }
+      } else {
+         toast({
+            title: "Service Worker Tidak Didukung",
+            description: "Browser Anda tidak mendukung service worker.",
+        });
+      }
+
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(key => caches.delete(key)));
+        toast({
+          title: "Cache Dibersihkan",
+          description: "Cache browser berhasil dibersihkan.",
+        });
+      }
+
+      toast({
+        title: "Selesai!",
+        description: "Memuat ulang halaman sekarang...",
+      });
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+    } catch (error) {
+      console.error("Gagal membersihkan cache:", error);
+      toast({
+        variant: "destructive",
+        title: "Gagal Membersihkan Cache",
+        description: "Terjadi kesalahan saat mencoba membersihkan cache.",
+      });
+      setIsRefreshing(false);
+    }
+  };
+
 
   const calculateAvgSuccessPotential = () => {
     if (memberAnalytics.length === 0) return 0;
@@ -250,66 +312,90 @@ export default function VendorDashboardPage() {
             </CardContent>
         </Card>
 
-        <Card className="lg:col-span-1 h-fit">
-            <CardHeader>
-                <CardTitle>Database Tools</CardTitle>
-                <CardDescription>Perform global database operations.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                    <DialogTrigger asChild>
-                         <Button variant="outline" className="w-full">
-                            <Database className="mr-2 h-4 w-4" />
-                            Export / Restore Data
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Export / Restore Data Member</DialogTitle>
-                            <DialogDescription>
-                                Pilih member untuk mengekspor data mereka (termasuk pelanggan & kampanye), atau pulihkan dari file backup JSON.
-                            </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                            {members.map(member => (
-                                <div key={member.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted">
-                                    <Checkbox 
-                                        id={`backup-${member.id}`}
-                                        onCheckedChange={(checked) => handleSelectMember(member.id, checked as boolean)}
-                                        checked={selectedMembers.includes(member.id)}
-                                    />
-                                    <Label htmlFor={`backup-${member.id}`} className="flex-1 cursor-pointer">
-                                        <span className="font-medium">{member.businessName}</span>
-                                        <p className="text-xs text-muted-foreground">{member.email}</p>
-                                    </Label>
-                                </div>
-                            ))}
-                        </div>
-                        <DialogFooter className="flex-col sm:flex-row gap-2">
-                             <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleFileChange}
-                                accept=".json"
-                                className="hidden"
-                            />
-                            <Button variant="outline" className="w-full sm:w-auto" onClick={handleRestoreClick}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                Restore dari File
+        <div className="lg:col-span-1 space-y-6">
+            <Card className="h-fit">
+                <CardHeader>
+                    <CardTitle>Database Tools</CardTitle>
+                    <CardDescription>Perform global database operations.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger asChild>
+                             <Button variant="outline" className="w-full">
+                                <Database className="mr-2 h-4 w-4" />
+                                Export / Restore Data
                             </Button>
-                            <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isProcessing || selectedMembers.length === 0}>
-                                {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                                Export Backup {selectedMembers.length > 0 ? `(${selectedMembers.length})` : ''}
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-                 <p className="text-xs text-muted-foreground pt-2">
-                    Auto-backup harian dijadwalkan pada pukul 12 malam. Export & restore manual tersedia kapan saja.
-                </p>
-            </CardContent>
-        </Card>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Export / Restore Data Member</DialogTitle>
+                                <DialogDescription>
+                                    Pilih member untuk mengekspor data mereka (termasuk pelanggan & kampanye), atau pulihkan dari file backup JSON.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                                {members.map(member => (
+                                    <div key={member.id} className="flex items-center space-x-2 p-2 rounded-md hover:bg-muted">
+                                        <Checkbox 
+                                            id={`backup-${member.id}`}
+                                            onCheckedChange={(checked) => handleSelectMember(member.id, checked as boolean)}
+                                            checked={selectedMembers.includes(member.id)}
+                                        />
+                                        <Label htmlFor={`backup-${member.id}`} className="flex-1 cursor-pointer">
+                                            <span className="font-medium">{member.businessName}</span>
+                                            <p className="text-xs text-muted-foreground">{member.email}</p>
+                                        </Label>
+                                    </div>
+                                ))}
+                            </div>
+                            <DialogFooter className="flex-col sm:flex-row gap-2">
+                                 <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    accept=".json"
+                                    className="hidden"
+                                />
+                                <Button variant="outline" className="w-full sm:w-auto" onClick={handleRestoreClick}>
+                                    <Upload className="mr-2 h-4 w-4" />
+                                    Restore dari File
+                                </Button>
+                                <Button className="w-full sm:w-auto" onClick={handleExport} disabled={isProcessing || selectedMembers.length === 0}>
+                                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+                                    Export Backup {selectedMembers.length > 0 ? `(${selectedMembers.length})` : ''}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                     <p className="text-xs text-muted-foreground pt-2">
+                        Auto-backup harian dijadwalkan pada pukul 12 malam. Export & restore manual tersedia kapan saja.
+                    </p>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Utilitas Vendor</CardTitle>
+                    <CardDescription>Alat untuk pemeliharaan dan perbaikan cepat.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button onClick={handleClearCache} disabled={isRefreshing}>
+                        {isRefreshing ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <RefreshCw className="mr-2 h-4 w-4"/>
+                        )}
+                        {isRefreshing ? "Membersihkan..." : "Bersihkan Cache & Segarkan"}
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Gunakan ini jika Anda atau member mengalami masalah data yang usang.
+                    </p>
+                </CardContent>
+            </Card>
+        </div>
       </div>
     </div>
   );
 }
+
+    
