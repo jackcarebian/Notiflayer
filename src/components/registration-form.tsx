@@ -28,7 +28,7 @@ import { registerUserAction } from "@/app/actions";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { initializeApp, getApps, getApp } from "firebase/app";
+import { initializeApp, getApps, getApp, type FirebaseOptions } from "firebase/app";
 import { getMessaging, getToken, isSupported } from "firebase/messaging";
 
 const formSchema = z.object({
@@ -41,6 +41,29 @@ const formSchema = z.object({
     }
   ),
 });
+
+// =================================================================
+// PENTING: Pindahkan konfigurasi ini ke file .env.local Anda!
+// Jangan pernah menempatkan kunci API langsung di dalam kode.
+// =================================================================
+// Contoh isi file .env.local:
+// NEXT_PUBLIC_FIREBASE_API_KEY="YOUR_API_KEY_HERE"
+// NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="YOUR_PROJECT_ID.firebaseapp.com"
+// NEXT_PUBLIC_FIREBASE_PROJECT_ID="YOUR_PROJECT_ID"
+// NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="YOUR_PROJECT_ID.appspot.com"
+// NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="YOUR_MESSAGING_SENDER_ID"
+// NEXT_PUBLIC_FIREBASE_APP_ID="YOUR_APP_ID"
+// NEXT_PUBLIC_FIREBASE_VAPID_KEY="YOUR_VAPID_KEY_HERE"
+// =================================================================
+const firebaseConfig: FirebaseOptions = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+};
+const VAPID_KEY = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
 
 type RegistrationFormProps = {
   outlet: Outlet;
@@ -62,31 +85,12 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
   });
 
   const requestNotificationPermission = async () => {
-    // =================================================================
-    // PENTING: Ganti dengan konfigurasi project Firebase Anda!
-    // Anda bisa menemukannya di Project settings > General di Firebase Console.
-    const firebaseConfig = {
-        apiKey: "YOUR_API_KEY_HERE",
-        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT_ID.appspot.com",
-        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-    // =================================================================
-    
-    // =================================================================
-    // PENTING: Ganti dengan VAPID key Anda dari Firebase Console
-    // Project Settings > Cloud Messaging > Web configuration
-    const VAPID_KEY = "YOUR_VAPID_KEY_HERE";
-    // =================================================================
-
-    if (firebaseConfig.apiKey === "YOUR_API_KEY_HERE" || VAPID_KEY === "YOUR_VAPID_KEY_HERE") {
-        console.warn("Firebase config or VAPID key is not set. Skipping notification permission.");
+    if (!firebaseConfig.apiKey || !VAPID_KEY) {
+        console.error("Firebase config or VAPID key is not set in environment variables.");
         toast({
             variant: "destructive",
             title: "Konfigurasi Firebase Belum Lengkap",
-            description: "Notifikasi tidak dapat diaktifkan saat ini.",
+            description: "Notifikasi tidak dapat diaktifkan. Harap hubungi pemilik situs.",
         });
         setNotificationPermissionStatus('denied');
         return;
@@ -134,13 +138,16 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
   }
 
   useEffect(() => {
-    setNotificationPermissionStatus(typeof window !== 'undefined' ? Notification.permission : 'denied');
+    // Only run on client
+    if (typeof window !== 'undefined') {
+        setNotificationPermissionStatus(Notification.permission);
+    }
   }, []);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
     
-    if (notificationPermissionStatus !== 'granted' || !fcmToken) {
+    if (notificationPermissionStatus !== 'granted') {
         toast({
             variant: "destructive",
             title: "Izin Notifikasi Diperlukan",
@@ -155,7 +162,7 @@ export function RegistrationForm({ outlet }: RegistrationFormProps) {
     if (result.success) {
       toast({
         title: "Pendaftaran Berhasil!",
-        description: `Terima kasih, ${values.name}. Selamat datang!`,
+        description: result.message || `Terima kasih, ${values.name}. Selamat datang!`,
       });
       form.reset();
     } else {
