@@ -39,7 +39,7 @@ const pricingPlans = [
     icon: <Globe className="w-8 h-8 text-primary" />,
     title: "Multi Bisnis dan Banyak Cabang",
     price: "199.000",
-    features: ["Semua di paket Banyak Cabang", "Outlet & Brand Tak Terbatas", "Segmentasi Global", "Manajer Akun Khusus", "Integrasi API"],
+    features: ["Semua di paket Banyak Cabang", "Outlet & Brand Tak Terbatas", "Segmentasi Global", "Manajer Akun Khusus dengan Analitik AI", "Integrasi API"],
     popular: false,
   },
 ];
