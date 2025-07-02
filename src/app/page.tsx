@@ -106,7 +106,7 @@ export default function Home() {
               Di Persimpangan Teknologi dan Ambisi, Visi Kita Bersatu
             </h2>
             <p className="mt-6 text-lg text-gray-600 leading-relaxed">
-              Notiflayer lahir dari sebuah keyakinan: di balik setiap QR code yang terpindai dan setiap notifikasi yang terkirim, ada sebuah detak jantung bisnis yang berjuang untuk bertumbuh. Visi kami menyatu dengan visi Anda. Bukan hanya tentang mengirim promo, tapi tentang <strong className="font-semibold text-gray-800">menciptakan momen yang mendorong transaksi</strong> dan <strong className="font-semibold text-gray-800">menempa loyalitas pelanggan</strong> yang abadi.
+              Notiflayer lahir dari sebuah keyakinan: di balik setiap QR code yang terpindai dan setiap notifikasi yang terkirim, ada sebuah detak jantung bisnis yang berjuang untuk bertumbuh. Visi kami menyatu dengan visi Anda. Bukan hanya tentang mengirim promo, tapi tentang <strong className="font-semibold text-gray-800">menciptakan momen yang mendorong transaksi</strong> dan <strong className="font-semibold text-gray-800">menempa loyalitas pelanggan</strong> yang setia.
             </p>
           </div>
         </section>
