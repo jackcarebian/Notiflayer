@@ -36,6 +36,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 const navItems = [
   { href: "/admin", icon: <LayoutGrid className="h-5 w-5" />, label: "Dashboard" },
@@ -49,6 +50,7 @@ const navItems = [
 ];
 
 function SidebarNav() {
+  const router = useRouter();
   return (
     <div className="flex h-full max-h-screen flex-col gap-2">
       <div className="flex h-14 items-center border-b border-gray-700 px-4 lg:h-[60px] lg:px-6">
@@ -72,11 +74,9 @@ function SidebarNav() {
         </nav>
       </div>
       <div className="mt-auto p-4 border-t border-gray-700">
-         <Button variant="ghost" size="sm" asChild className="w-full justify-start text-gray-300 hover:bg-gray-700/50 hover:text-white">
-           <Link href="/">
+         <Button variant="ghost" size="sm" onClick={() => router.push('/')} className="w-full justify-start text-gray-300 hover:bg-gray-700/50 hover:text-white">
               <LogOut className="mr-2 h-4 w-4" />
               Logout
-           </Link>
         </Button>
       </div>
     </div>
@@ -109,6 +109,7 @@ export default function AdminLayout({
   // Di aplikasi nyata, nilai ini akan berasal dari database (misalnya, `user.subscription.status !== 'active'`).
   // Setelah upgrade, status di database akan diperbarui dan overlay ini tidak akan muncul lagi.
   const [isTrialExpired] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -151,8 +152,8 @@ export default function AdminLayout({
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Support</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                 <Link href="/">Logout</Link>
+              <DropdownMenuItem onClick={() => router.push('/')}>
+                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
