@@ -25,7 +25,7 @@ import { promoInterests } from "@/lib/outlets";
 import type { Outlet } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { registerUserAction } from "@/app/actions";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { initializeApp, getApps, getApp } from "firebase/app";
