@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState } from 'react';
 import {
   Card,
   CardHeader,
@@ -22,8 +25,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Users,
   MoreHorizontal,
@@ -31,15 +46,18 @@ import {
   Trash2,
   BarChart,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data, in a real app this would come from a database.
-const members = [
+const initialMembers = [
     { id: 'usr_001', businessName: 'Cafe Inyong', owner: 'Budi Santoso', email: 'budi.s@example.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-07-20' },
     { id: 'usr_002', businessName: 'Kedai Kopi Anyar', owner: 'Siti Aminah', email: 'siti.a@example.com', status: 'Trial', plan: 'Demo', joined: '2024-07-28' },
     { id: 'usr_003', businessName: 'Butik Elegan', owner: 'Dewi Lestari', email: 'dewi.l@example.com', status: 'Upgrade Pending', plan: 'Banyak Cabang', joined: '2024-06-15' },
     { id: 'usr_004', businessName: 'Toko Roti Lezat', owner: 'Ahmad Dahlan', email: 'ahmad.d@example.com', status: 'Expired', plan: 'Demo', joined: '2024-05-10' },
     { id: 'usr_005', businessName: 'Eka Galeri', owner: 'Eka Putri', email: 'ekagaleri@gmail.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-08-01' },
 ];
+
+type Member = typeof initialMembers[0];
 
 const getStatusVariant = (status: string): "default" | "secondary" | "outline" | "destructive" | null | undefined => {
     switch (status) {
@@ -52,6 +70,31 @@ const getStatusVariant = (status: string): "default" | "secondary" | "outline" |
 };
 
 export default function VendorMembersPage() {
+  const [members, setMembers] = useState(initialMembers);
+  const [memberToDelete, setMemberToDelete] = useState<Member | null>(null);
+  const [confirmationText, setConfirmationText] = useState('');
+  const { toast } = useToast();
+
+  const handleConfirmDelete = () => {
+    if (!memberToDelete || confirmationText !== 'delete') return;
+    
+    // Simulate API call to delete member
+    console.log(`SIMULASI: Menghapus member ${memberToDelete.businessName}`);
+    
+    setMembers(prevMembers => prevMembers.filter(m => m.id !== memberToDelete.id));
+    toast({
+      title: "Member Dihapus",
+      description: `Akun untuk ${memberToDelete.businessName} telah berhasil dihapus.`,
+    });
+    
+    handleCloseDialog();
+  };
+
+  const handleCloseDialog = () => {
+    setMemberToDelete(null);
+    setConfirmationText('');
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -134,7 +177,10 @@ export default function VendorMembersPage() {
                           View Analytics
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:bg-red-100 focus:text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive focus:bg-red-100 focus:text-destructive"
+                          onSelect={() => setMemberToDelete(member)}
+                         >
                           <Trash2 className="mr-2 h-4 w-4" />
                           Delete Member
                         </DropdownMenuItem>
@@ -147,6 +193,40 @@ export default function VendorMembersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!memberToDelete} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Anda yakin ingin menghapus member ini?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tindakan ini tidak dapat dibatalkan. Ini akan menghapus akun member untuk{' '}
+              <span className="font-bold">{memberToDelete?.businessName}</span> secara permanen.
+              <br /><br />
+              Untuk mengonfirmasi, ketik <strong className="font-mono text-destructive">delete</strong> pada kolom di bawah ini.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-2">
+            <Label htmlFor="delete-confirm" className="sr-only">Konfirmasi Hapus</Label>
+            <Input
+              id="delete-confirm"
+              value={confirmationText}
+              onChange={(e) => setConfirmationText(e.target.value)}
+              placeholder="delete"
+              autoComplete="off"
+              autoFocus
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCloseDialog}>Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={confirmationText !== 'delete'}
+            >
+              Hapus Member
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
