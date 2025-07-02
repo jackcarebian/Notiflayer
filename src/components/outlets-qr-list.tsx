@@ -76,7 +76,7 @@ export function OutletsQrList({ outlets }: OutletsQrListProps) {
                   data-ai-hint="qr code"
                 />
               </div>
-              <div className="flex flex-col sm:flex-row gap-2 w-full">
+              <div className="flex flex-col gap-2 w-full">
                 <Button asChild variant="outline" className="flex-1">
                     <Link href={`/reg/${outlet.slug}`} target="_blank">
                     Test Link <ArrowRight className="ml-2 h-4 w-4" />
