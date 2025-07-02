@@ -23,6 +23,15 @@ const members = [
   { id: 'usr_005', businessName: 'Eka Galeri', owner: 'Eka Putri', email: 'ekagaleri@gmail.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-08-01' },
 ];
 
+// Mock data from analytics to calculate global success potential
+const memberAnalytics = [
+  { overallRating: 'Sangat Baik' },
+  { overallRating: 'Cukup Baik' },
+  { overallRating: 'Baik' },
+  { overallRating: 'Kurang Baik' },
+  { overallRating: 'Sangat Buruk' },
+];
+
 const allCustomers = [
     { customerId: 'cust_101', memberId: 'usr_001', name: 'Ahmad Dahlan', email: 'ahmad.d@example.com', outlet: 'Cafe Inyong', interests: ["Promo Makanan", "Diskon Spesial Hari Tertentu"] },
     { customerId: 'cust_102', memberId: 'usr_001', name: 'Siti Aminah', email: 'siti.a@example.com', outlet: 'Cafe Inyong', interests: ["Promo Minuman", "Menu Baru"] },
@@ -46,12 +55,33 @@ const getStatusVariant = (status: string): "default" | "secondary" | "outline" |
     }
 };
 
+type AnalyticsRating = 'Sangat Baik' | 'Baik' | 'Cukup Baik' | 'Kurang Baik' | 'Sangat Buruk';
+
+const ratingToScore: Record<AnalyticsRating, number> = {
+    'Sangat Baik': 95,
+    'Baik': 80,
+    'Cukup Baik': 65,
+    'Kurang Baik': 40,
+    'Sangat Buruk': 20,
+};
+
 export default function VendorDashboardPage() {
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const calculateAvgSuccessPotential = () => {
+    if (memberAnalytics.length === 0) return 0;
+    const totalScore = memberAnalytics.reduce((sum, member) => {
+      const rating = member.overallRating as AnalyticsRating;
+      return sum + (ratingToScore[rating] || 0);
+    }, 0);
+    return Math.round(totalScore / memberAnalytics.length);
+  };
+
+  const avgSuccessPotential = calculateAvgSuccessPotential();
 
   const handleSelectMember = (memberId: string, checked: boolean) => {
     if (checked) {
@@ -158,7 +188,7 @@ export default function VendorDashboardPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <StatCard title="Total Members" value={members.length.toString()} icon={<Users />} description={`${members.filter(m => m.status === 'Active').length} active subscriptions`} />
         <StatCard title="Pending Upgrades" value={members.filter(m => m.status === 'Upgrade Pending').length.toString()} icon={<Clock />} description="Awaiting activation" />
-        <StatCard title="Avg. Success Potential" value="78%" icon={<BarChart />} description="Based on AI-driven analytics" />
+        <StatCard title="Avg. Success Potential" value={`${avgSuccessPotential}%`} icon={<BarChart />} description="Based on AI-driven analytics" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -283,4 +313,3 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
-
