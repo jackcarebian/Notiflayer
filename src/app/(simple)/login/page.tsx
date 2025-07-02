@@ -38,11 +38,6 @@ export default function LoginPage() {
           <Button asChild className="w-full">
             <Link href="/admin">Login</Link>
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
-            Untuk mencoba Notiflayer, gunakan:
-            <br />
-            <span className="font-mono">admin@notiflayer.com</span> dengan password <span className="font-mono">admin</span>
-          </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
            <div className="text-center text-sm">
