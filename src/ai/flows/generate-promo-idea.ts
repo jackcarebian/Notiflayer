@@ -10,7 +10,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const GeneratePromoIdeaInputSchema = z.object({
+const GeneratePromoIdeaInputSchema = z.object({
   businessType: z.string().describe('The type of business (e.g., Cafe, Boutique, Salon).'),
   product: z.string().describe('The specific product or service being promoted.'),
   audience: z.string().describe('The target audience for the promotion.'),
@@ -18,7 +18,7 @@ export const GeneratePromoIdeaInputSchema = z.object({
 });
 export type GeneratePromoIdeaInput = z.infer<typeof GeneratePromoIdeaInputSchema>;
 
-export const GeneratePromoIdeaOutputSchema = z.object({
+const GeneratePromoIdeaOutputSchema = z.object({
   headline: z.string().describe('A catchy and compelling headline for the promotion.'),
   body: z.string().describe('The main body of the promotional text, explaining the offer.'),
   callToAction: z.string().describe('A clear call to action for the customer.'),
