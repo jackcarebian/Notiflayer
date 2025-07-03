@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    allowedDevOrigins: [
+      'https://6000-firebase-studio-1751031494094.cluster-ubrd2huk7jh6otbgyei4h62ope.cloudworkstations.dev',
+    ],
+  },
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
@@ -32,5 +37,3 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
-
-    
