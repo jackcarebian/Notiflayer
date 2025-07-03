@@ -5,55 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { BarChart, TrendingUp, TrendingDown, Meh, Smile, Frown, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Mock data representing analytics pulled from each member outlet
-const memberAnalytics = [
-  {
-    id: 'usr_001',
-    businessName: 'Cafe Inyong',
-    overallRating: 'Sangat Baik',
-    conversionRate: '18.5%',
-    activeCampaigns: 2,
-    totalCustomers: 85,
-    aiSuggestion: 'Optimalkan kampanye "Promo Makanan" pada jam makan siang.'
-  },
-  {
-    id: 'usr_002',
-    businessName: 'Kedai Kopi Anyar',
-    overallRating: 'Cukup Baik',
-    conversionRate: '7.2%',
-    activeCampaigns: 0,
-    totalCustomers: 23,
-    aiSuggestion: 'Luncurkan kampanye "Menu Baru" untuk menarik minat.'
-  },
-  {
-    id: 'usr_003',
-    businessName: 'Butik Elegan',
-    overallRating: 'Baik',
-    conversionRate: '12.8%',
-    activeCampaigns: 4,
-    totalCustomers: 150,
-    aiSuggestion: 'Gunakan "Flash Sale" untuk item koleksi lama.'
-  },
-  {
-    id: 'usr_004',
-    businessName: 'Toko Roti Lezat',
-    overallRating: 'Kurang Baik',
-    conversionRate: '3.1%',
-    activeCampaigns: 1,
-    totalCustomers: 45,
-    aiSuggestion: 'Tawarkan "Diskon Spesial" untuk pembelian di atas Rp 50.000.'
-  },
-  {
-    id: 'usr_005',
-    businessName: 'Eka Galeri',
-    overallRating: 'Sangat Buruk',
-    conversionRate: '0.5%',
-    activeCampaigns: 0,
-    totalCustomers: 12,
-    aiSuggestion: 'Fokus pada pendaftaran pelanggan baru dengan promo selamat datang.'
-  },
-];
+import { memberAnalytics } from "@/lib/data";
 
 type AnalyticsRating = 'Sangat Baik' | 'Baik' | 'Cukup Baik' | 'Kurang Baik' | 'Sangat Buruk';
 

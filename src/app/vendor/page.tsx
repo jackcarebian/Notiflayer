@@ -13,36 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-
-// Mock data for the vendor dashboard
-const members = [
-  { id: 'usr_001', businessName: 'Cafe Inyong', owner: 'Budi Santoso', email: 'budi.s@example.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-07-20' },
-  { id: 'usr_002', businessName: 'Kedai Kopi Anyar', owner: 'Siti Aminah', email: 'siti.a@example.com', status: 'Trial', plan: 'Demo', joined: '2024-07-28' },
-  { id: 'usr_003', businessName: 'Butik Elegan', owner: 'Dewi Lestari', email: 'dewi.l@example.com', status: 'Upgrade Pending', plan: 'Banyak Cabang', joined: '2024-06-15' },
-  { id: 'usr_004', businessName: 'Toko Roti Lezat', owner: 'Ahmad Dahlan', email: 'ahmad.d@example.com', status: 'Expired', plan: 'Demo', joined: '2024-05-10' },
-  { id: 'usr_005', businessName: 'Eka Galeri', owner: 'Eka Putri', email: 'ekagaleri@gmail.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-08-01' },
-];
-
-// Mock data from analytics to calculate global success potential
-const memberAnalytics = [
-  { overallRating: 'Sangat Baik' },
-  { overallRating: 'Cukup Baik' },
-  { overallRating: 'Baik' },
-  { overallRating: 'Kurang Baik' },
-  { overallRating: 'Sangat Buruk' },
-];
-
-const allCustomers = [
-    { customerId: 'cust_101', memberId: 'usr_001', name: 'Ahmad Dahlan', email: 'ahmad.d@example.com', outlet: 'Cafe Inyong', interests: ["Promo Makanan", "Diskon Spesial Hari Tertentu"] },
-    { customerId: 'cust_102', memberId: 'usr_001', name: 'Siti Aminah', email: 'siti.a@example.com', outlet: 'Cafe Inyong', interests: ["Promo Minuman", "Menu Baru"] },
-    { customerId: 'cust_103', memberId: 'usr_002', name: 'Charlie', email: 'charlie@example.com', outlet: 'Kedai Kopi Anyar', interests: ["Promo Minuman"] },
-];
-
-const allCampaigns = [
-    { campaignId: 'camp_abc', memberId: 'usr_001', name: 'Promo Nonton Bola Bareng', status: 'Sedang Berlangsung' },
-    { campaignId: 'camp_def', memberId: 'usr_001', name: 'Diskon Liburan Sekolah Ceria', status: 'Akan Datang' },
-    { campaignId: 'camp_ghi', memberId: 'usr_002', name: 'Flash Sale Kopi 7.7', status: 'Berakhir' },
-];
+import { members, memberAnalytics, allCustomers, allCampaigns } from '@/lib/data';
 
 
 const getStatusVariant = (status: string): "default" | "secondary" | "outline" | "destructive" | null | undefined => {
@@ -355,7 +326,7 @@ export default function VendorDashboardPage() {
                                     onChange={handleFileChange}
                                     accept=".json"
                                     className="hidden"
-                                />
+                                 />
                                 <Button variant="outline" className="w-full sm:w-auto" onClick={handleRestoreClick}>
                                     <Upload className="mr-2 h-4 w-4" />
                                     Restore dari File
@@ -397,5 +368,3 @@ export default function VendorDashboardPage() {
     </div>
   );
 }
-
-    
