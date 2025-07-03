@@ -1,14 +1,8 @@
 import type { Outlet } from './types';
 
-export const outlets: Outlet[] = [
-  {
-    id: 1,
-    name: 'Cafe Inyong',
-    slug: 'cafe-inyong',
-    address: 'Jl. Pahlawan No. 123, Kota Tegal',
-    category: 'Cafe',
-  },
-];
+// This mock data is no longer used as outlets are now stored in Firestore.
+// The array is kept to prevent breaking imports, but it should be empty.
+export const outlets: Outlet[] = [];
 
 export const promoInterests = {
     "Cafe / Resto / Foodcourt": [

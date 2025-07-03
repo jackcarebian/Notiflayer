@@ -1,9 +1,10 @@
 export type Outlet = {
-  id: number;
+  id: string; // doc id from firestore
   name: string;
   slug: string;
   address: string;
   category: string;
+  memberId: string; // The ID of the member this outlet belongs to
 };
 
 export type Member = {
@@ -14,4 +15,9 @@ export type Member = {
   status: 'Active' | 'Trial' | 'Upgrade Pending' | 'Expired';
   plan: 'Satu Cabang' | 'Banyak Cabang' | 'Multi Bisnis' | 'Demo';
   joined: string; // ISO date string
+  address?: string;
+  postalCode?: string;
+  businessType?: string;
+  whatsappNumber?: string;
+  planId?: string;
 };

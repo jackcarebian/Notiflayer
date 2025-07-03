@@ -3,6 +3,7 @@
 
 import { z } from "zod";
 import { db } from "@/lib/firebase-admin";
+import { slugify } from "@/lib/utils";
 
 // =================================================================
 // ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
@@ -145,7 +146,7 @@ export async function registerMemberAction(payload: RegisterMemberPayload) {
       errors: validation.error.flatten().fieldErrors,
     };
   }
-  const { businessName, ownerName, email, planId, ...otherDetails } = validation.data;
+  const { businessName, ownerName, email, planId, address, businessType, ...otherDetails } = validation.data;
 
   // Simple mapping from planId to a more readable plan name
   const planMap: { [key: string]: string } = {
@@ -165,9 +166,20 @@ export async function registerMemberAction(payload: RegisterMemberPayload) {
   };
 
   try {
-    const docRef = await db.collection("members").add(newMemberData);
-    console.log("Member baru disimpan ke Firestore dengan ID:", docRef.id);
+    const memberDocRef = await db.collection("members").add(newMemberData);
+    console.log("Member baru disimpan ke Firestore dengan ID:", memberDocRef.id);
     
+    // Also create the first outlet for this new member
+    const firstOutletData = {
+      memberId: memberDocRef.id,
+      name: businessName,
+      slug: slugify(businessName),
+      address: address,
+      category: businessType,
+    };
+    await db.collection("outlets").add(firstOutletData);
+    console.log("Outlet pertama untuk member baru telah dibuat.");
+
     return {
       success: true,
       message: `Pendaftaran untuk ${businessName} berhasil! Silakan login untuk memulai.`,
@@ -178,6 +190,53 @@ export async function registerMemberAction(payload: RegisterMemberPayload) {
        success: false,
        message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
      };
+  }
+}
+
+// =================================================================
+// ACTION UNTUK MENAMBAH OUTLET BARU
+// =================================================================
+const outletFormSchema = z.object({
+  name: z.string().min(2, { message: "Nama outlet minimal 2 karakter." }),
+  address: z.string().min(10, { message: "Alamat lengkap minimal 10 karakter." }),
+  category: z.string({ required_error: "Pilih jenis bisnis Anda." }),
+  memberId: z.string(), // In real app, this would come from session
+});
+
+export async function addOutletAction(payload: z.infer<typeof outletFormSchema>) {
+  const validation = outletFormSchema.safeParse(payload);
+
+  if (!validation.success) {
+    return {
+      success: false,
+      message: "Data yang dimasukkan tidak valid.",
+      errors: validation.error.flatten().fieldErrors,
+    };
+  }
+
+  const { name, address, category, memberId } = validation.data;
+  
+  const newOutletData = {
+    name,
+    address,
+    category,
+    memberId,
+    slug: slugify(name),
+  };
+
+  try {
+    const docRef = await db.collection("outlets").add(newOutletData);
+    console.log("Outlet baru disimpan ke Firestore dengan ID:", docRef.id);
+    return {
+      success: true,
+      message: `Outlet "${name}" berhasil ditambahkan.`,
+    };
+  } catch (error) {
+    console.error("Gagal menyimpan outlet ke Firestore:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan pada server saat menyimpan data.",
+    };
   }
 }
 
