@@ -22,7 +22,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  businessName: z.string().min(2, { message: "Nama bisnis minimal 2 karakter." }),
   ownerName: z.string().min(2, { message: "Nama Anda minimal 2 karakter." }),
   email: z.string().email({ message: "Format email tidak valid." }),
   password: z.string().min(6, { message: "Password minimal 6 karakter." }),
@@ -36,7 +35,6 @@ export function DemoRegistrationForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      businessName: "",
       ownerName: "",
       email: "",
       password: "",
@@ -73,25 +71,12 @@ export function DemoRegistrationForm() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
-              name="businessName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nama Bisnis / Outlet</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Contoh: Cafe Inyong" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="ownerName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Nama Anda</FormLabel>
                   <FormControl>
-                    <Input placeholder="Nama Lengkap Pemilik" {...field} />
+                    <Input placeholder="Nama Lengkap Anda" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

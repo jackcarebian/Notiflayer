@@ -51,7 +51,7 @@ export const members: Member[] = [
   },
   {
     id: 'usr_006',
-    businessName: "Dita's Demo Shop",
+    businessName: "Dita",
     owner: 'Dita',
     email: 'dita.demo@example.com',
     status: 'Trial',
@@ -66,7 +66,7 @@ export const memberAnalytics = [
   { id: 'usr_003', businessName: 'Butik Elegan', overallRating: 'Baik', conversionRate: '12.8%', activeCampaigns: 4, totalCustomers: 150, aiSuggestion: 'Gunakan "Flash Sale" untuk item koleksi lama.' },
   { id: 'usr_004', businessName: 'Toko Roti Lezat', overallRating: 'Kurang Baik', conversionRate: '3.1%', activeCampaigns: 1, totalCustomers: 45, aiSuggestion: 'Tawarkan "Diskon Spesial" untuk pembelian di atas Rp 50.000.' },
   { id: 'usr_005', businessName: 'Eka Galeri', overallRating: 'Sangat Buruk', conversionRate: '0.5%', activeCampaigns: 0, totalCustomers: 12, aiSuggestion: 'Fokus pada pendaftaran pelanggan baru dengan promo selamat datang.' },
-  { id: 'usr_006', businessName: "Dita's Demo Shop", overallRating: 'Cukup Baik', conversionRate: '0%', activeCampaigns: 0, totalCustomers: 0, aiSuggestion: 'Mulai dengan membuat kampanye selamat datang untuk pelanggan pertama.' },
+  { id: 'usr_006', businessName: "Dita", overallRating: 'Cukup Baik', conversionRate: '0%', activeCampaigns: 0, totalCustomers: 0, aiSuggestion: 'Mulai dengan membuat kampanye selamat datang untuk pelanggan pertama.' },
 ];
 
 export const allCustomers = [
