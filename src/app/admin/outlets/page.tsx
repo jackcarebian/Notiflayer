@@ -1,40 +1,62 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { OutletsQrList } from "@/components/outlets-qr-list";
 import { AddOutletDialog } from "@/components/admin/add-outlet-dialog";
-import { db } from '@/lib/firebase-admin';
+import { getOutletsPageDataAction } from '@/app/actions';
 import type { Outlet, Member } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal } from "lucide-react";
+import { Skeleton } from '@/components/ui/skeleton';
 
-async function getData() {
-  // In a real app, you'd get the logged-in member's ID from a session.
-  // For this prototype, we'll find a specific member ('Cafe Inyong') to act as the logged-in user.
-  // If not found, we'll gracefully handle it.
-  const membersSnapshot = await db.collection('members').where('businessName', '==', 'Cafe Inyong').limit(1).get();
-  
-  if (membersSnapshot.empty) {
-    // If 'Cafe Inyong' doesn't exist, maybe find the first member?
-    const firstMemberSnapshot = await db.collection('members').orderBy('joined', 'desc').limit(1).get();
-    if(firstMemberSnapshot.empty) {
-        return { outlets: [], member: null, error: "Tidak ada member yang terdaftar di database." };
-    }
-    const memberDoc = firstMemberSnapshot.docs[0];
-    const member = { id: memberDoc.id, ...memberDoc.data() } as Member;
-    const outletsSnapshot = await db.collection('outlets').where('memberId', '==', member.id).get();
-    const outlets = outletsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Outlet[];
-    return { outlets, member, error: null };
-  }
-  
-  const memberDoc = membersSnapshot.docs[0];
-  const member = { id: memberDoc.id, ...memberDoc.data() } as Member;
-
-  const outletsSnapshot = await db.collection('outlets').where('memberId', '==', member.id).get();
-  const outlets = outletsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Outlet[];
-  
-  return { outlets, member, error: null };
+function OutletsPageSkeleton() {
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-start">
+                <div>
+                    <Skeleton className="h-8 w-64 mb-2" />
+                    <Skeleton className="h-5 w-96" />
+                </div>
+                <Skeleton className="h-10 w-40" />
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="space-y-3">
+                        <Skeleton className="h-5 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-52 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
 }
 
-export default async function OutletsPage() {
-  const { outlets, member, error } = await getData();
+export default function OutletsPage() {
+  const [outlets, setOutlets] = useState<Outlet[]>([]);
+  const [member, setMember] = useState<Member | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      const result = await getOutletsPageDataAction();
+      if (result.success) {
+        setOutlets(result.outlets);
+        setMember(result.member);
+      } else {
+        setError(result.message || 'Gagal memuat data.');
+      }
+      setLoading(false);
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return <OutletsPageSkeleton />;
+  }
 
   if (error) {
      return (
@@ -48,8 +70,6 @@ export default async function OutletsPage() {
      )
   }
 
-  // Determine if the user should be able to add more outlets based on their plan.
-  // We'll allow it for 'Banyak Cabang' and 'Multi Bisnis' plans.
   const canAddOutlet = member?.plan === 'Banyak Cabang' || member?.plan === 'Multi Bisnis';
 
   return (

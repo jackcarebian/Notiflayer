@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { db } from "@/lib/firebase-admin";
 import { slugify } from "@/lib/utils";
-import type { Member } from "@/lib/types";
+import type { Member, Outlet } from "@/lib/types";
 
 // =================================================================
 // ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
@@ -283,4 +283,62 @@ export async function getMembersAction() {
       members: [],
     };
   }
+}
+
+// =================================================================
+// ACTION UNTUK MENGAMBIL DATA HALAMAN OUTLET
+// =================================================================
+export async function getOutletsPageDataAction() {
+  try {
+    // In a real app, you'd get the logged-in member's ID from a session.
+    // For this prototype, we'll find a specific member ('Cafe Inyong') to act as the logged-in user.
+    const membersSnapshot = await db.collection('members').where('businessName', '==', 'Cafe Inyong').limit(1).get();
+    
+    let memberDoc;
+    if (membersSnapshot.empty) {
+      const firstMemberSnapshot = await db.collection('members').orderBy('joined', 'desc').limit(1).get();
+      if(firstMemberSnapshot.empty) {
+          return { success: false, message: "Tidak ada member yang terdaftar di database.", outlets: [], member: null };
+      }
+      memberDoc = firstMemberSnapshot.docs[0];
+    } else {
+        memberDoc = membersSnapshot.docs[0];
+    }
+    
+    const member = { id: memberDoc.id, ...memberDoc.data() } as Member;
+
+    const outletsSnapshot = await db.collection('outlets').where('memberId', '==', member.id).get();
+    const outlets = outletsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Outlet[];
+    
+    return { success: true, outlets: JSON.parse(JSON.stringify(outlets)), member: JSON.parse(JSON.stringify(member)) };
+  } catch (error) {
+    console.error("Gagal mengambil data halaman outlet dari Firestore:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan pada server saat mengambil data.",
+      outlets: [],
+      member: null,
+    };
+  }
+}
+
+// =================================================================
+// ACTION UNTUK MENGAMBIL OUTLET BERDASARKAN SLUG
+// =================================================================
+export async function getOutletBySlugAction(slug: string): Promise<{ success: boolean; outlet: Outlet | null; message?: string }> {
+    if (!slug) {
+        return { success: false, outlet: null, message: "Slug tidak ditemukan." };
+    }
+    try {
+        const outletSnapshot = await db.collection('outlets').where('slug', '==', slug).limit(1).get();
+        if (outletSnapshot.empty) {
+            return { success: false, outlet: null, message: "Outlet tidak ditemukan." };
+        }
+        const doc = outletSnapshot.docs[0];
+        const outlet = { id: doc.id, ...doc.data() } as Outlet;
+        return { success: true, outlet: JSON.parse(JSON.stringify(outlet)) };
+    } catch (error) {
+        console.error("Gagal mengambil outlet by slug dari Firestore:", error);
+        return { success: false, outlet: null, message: "Gagal mengambil data dari server." };
+    }
 }
