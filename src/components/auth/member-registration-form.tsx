@@ -22,6 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import { Minus, Plus, Loader2 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { promoInterests } from '@/lib/outlets';
 import { registerMemberAction } from '@/app/actions';
 
