@@ -2,6 +2,7 @@
 "use server";
 
 import { z } from "zod";
+import { db } from "@/lib/firebase-admin";
 
 // =================================================================
 // ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
@@ -36,20 +37,29 @@ export async function registerCustomerAction(payload: RegisterCustomerPayload) {
   const { name, email, preferences, outletSlug, fcmToken } = validation.data;
 
   const dataToSave = {
-    nama: name,
+    name: name,
     email: email,
-    token_fcm: fcmToken,
-    waktu_daftar: new Date().toISOString(),
-    preferensi: preferences,
-    outlet: outletSlug,
+    fcmToken: fcmToken,
+    registeredAt: new Date().toISOString(),
+    preferences: preferences,
+    outletSlug: outletSlug,
   };
   
-  console.log("Data pelanggan yang akan disimpan ke Firestore:", JSON.stringify(dataToSave, null, 2));
+  try {
+    const docRef = await db.collection("customers").add(dataToSave);
+    console.log("Pelanggan baru disimpan ke Firestore dengan ID:", docRef.id);
 
-  return {
-    success: true,
-    message: `Pendaftaran untuk ${name} berhasil!`,
-  };
+    return {
+      success: true,
+      message: `Pendaftaran untuk ${name} berhasil!`,
+    };
+  } catch (error) {
+    console.error("Gagal menyimpan pelanggan ke Firestore:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+    };
+  }
 }
 
 
@@ -76,52 +86,53 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
     };
   }
 
-  const { businessName, ownerName, email } = validation.data;
-  const now = new Date();
-  const expiryDate = new Date(now.setDate(now.getDate() + 30));
-
-  const newOutletData = {
+  const { businessName, ownerName, email, password } = validation.data;
+  
+  const newMemberData = {
     businessName,
-    ownerName,
+    owner: ownerName,
     email,
-    subscription: {
-      type: 'demo',
-      status: 'active',
-      startDate: new Date().toISOString(),
-      expiryDate: expiryDate.toISOString(),
-      campaignsUsed: 0,
-      campaignLimit: 1,
-      campaignDurationLimit: 14, // Batas durasi kampanye 2 minggu
-    },
-    createdAt: new Date().toISOString(),
+    plan: 'Demo',
+    status: 'Trial',
+    joined: new Date().toISOString(),
   };
 
-  // --- LOGIKA BACKEND YANG SEBENARNYA ---
-  // Di aplikasi nyata, di sinilah Anda akan:
-  // 1. Menggunakan Firebase Auth untuk membuat user baru dengan email dan password.
-  //    const userRecord = await admin.auth().createUser({ email, password });
-  //
-  // 2. Membuat dokumen baru di koleksi 'outlets' (atau 'businesses') di Firestore.
-  //    const outletRef = await db.collection('outlets').add({
-  //      ...newOutletData,
-  //      ownerUid: userRecord.uid, // Tautkan outlet dengan UID pengguna
-  //    });
-  //
-  // 3. (Opsional) Membuat dokumen 'userProfile' untuk menyimpan info tambahan.
-  //    await db.collection('users').doc(userRecord.uid).set({
-  //      name: ownerName,
-  //      role: 'demo_user',
-  //      outletId: outletRef.id,
-  //    });
-  //
-  // 4. Setelah berhasil, kirim email selamat datang.
+  try {
+    // Di aplikasi nyata, Anda juga akan membuat user di Firebase Auth di sini
+    // menggunakan email dan password.
+    // const userRecord = await auth.createUser({ email, password });
+    // const memberDataWithUid = { ...newMemberData, ownerUid: userRecord.uid };
+    
+    const docRef = await db.collection("members").add(newMemberData);
+    console.log("Outlet demo baru disimpan ke Firestore dengan ID:", docRef.id);
+    
+    return {
+      success: true,
+      message: `Pendaftaran demo untuk ${businessName} berhasil! Silakan login untuk memulai.`,
+    };
+  } catch (error) {
+     console.error("Gagal menyimpan outlet demo ke Firestore:", error);
+     return {
+       success: false,
+       message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+     };
+  }
+}
 
-  console.log("SIMULASI: Membuat outlet demo baru di backend...");
-  console.log(JSON.stringify(newOutletData, null, 2));
-  console.log("SIMULASI: Akun demo akan aktif hingga:", expiryDate.toLocaleDateString('id-ID'));
-
-  return {
-    success: true,
-    message: `Pendaftaran demo untuk ${businessName} berhasil! Silakan login untuk memulai.`,
-  };
+// =================================================================
+// ACTION UNTUK MENGHAPUS MEMBER
+// =================================================================
+export async function deleteMemberAction(memberId: string) {
+  if (!memberId) {
+    return { success: false, message: "Member ID tidak ditemukan." };
+  }
+  
+  try {
+    await db.collection("members").doc(memberId).delete();
+    console.log(`Member dengan ID: ${memberId} telah dihapus dari Firestore.`);
+    return { success: true, message: "Member berhasil dihapus." };
+  } catch (error) {
+    console.error("Error saat menghapus member dari Firestore:", error);
+    return { success: false, message: "Gagal menghapus member dari server." };
+  }
 }

@@ -1,13 +1,5 @@
 
-// Mock data, in a real app this would come from a database.
-export const members = [
-    { id: 'usr_001', businessName: 'Cafe Inyong', owner: 'Budi Santoso', email: 'budi.s@example.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-07-20' },
-    { id: 'usr_002', businessName: 'Kedai Kopi Anyar', owner: 'Siti Aminah', email: 'siti.a@example.com', status: 'Trial', plan: 'Demo', joined: '2024-07-28' },
-    { id: 'usr_003', businessName: 'Butik Elegan', owner: 'Dewi Lestari', email: 'dewi.l@example.com', status: 'Upgrade Pending', plan: 'Banyak Cabang', joined: '2024-06-15' },
-    { id: 'usr_004', businessName: 'Toko Roti Lezat', owner: 'Ahmad Dahlan', email: 'ahmad.d@example.com', status: 'Expired', plan: 'Demo', joined: '2024-05-10' },
-    { id: 'usr_005', businessName: 'Eka Galeri', owner: 'Eka Putri', email: 'ekagaleri@gmail.com', status: 'Active', plan: 'Satu Cabang', joined: '2024-08-01' },
-    { id: 'usr_006', businessName: "Dita's Demo Shop", owner: 'Dita', email: 'dita.demo@example.com', status: 'Trial', plan: 'Demo', joined: new Date().toISOString().split('T')[0] },
-];
+// Data statis ini akan secara bertahap digantikan dengan data dari Firestore.
 
 export const memberAnalytics = [
   { id: 'usr_001', businessName: 'Cafe Inyong', overallRating: 'Sangat Baik', conversionRate: '18.5%', activeCampaigns: 2, totalCustomers: 85, aiSuggestion: 'Optimalkan kampanye "Promo Makanan" pada jam makan siang.' },
@@ -30,4 +22,12 @@ export const allCampaigns = [
     { campaignId: 'camp_ghi', memberId: 'usr_002', name: 'Flash Sale Kopi 7.7', status: 'Berakhir' },
 ];
 
-export type Member = typeof members[0];
+export type Member = {
+  id: string;
+  businessName: string;
+  owner: string;
+  email: string;
+  status: string;
+  plan: string;
+  joined: string;
+};
