@@ -78,7 +78,7 @@ export default function Home() {
         <section className="text-center py-16 md:py-24">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight max-w-4xl mx-auto lg:text-5xl font-headline">
-              Semua yang anda perlukan untuk memulai kampanye promo yang efektif dan sukses
+              Semua yang anda perlukan untuk memulai kampanye promo yang sukses
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
               Notiflayer adalah platform lengkap untuk mengubah pengunjung menjadi pelanggan
