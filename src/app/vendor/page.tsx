@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,7 @@ import { memberAnalytics, allCustomers, allCampaigns } from '@/lib/data';
 import { getMembersAction } from '@/app/actions';
 import type { Member } from '@/lib/types';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 
 const getStatusVariant = (status: string): "default" | "secondary" | "outline" | "destructive" | null | undefined => {
@@ -49,23 +50,31 @@ export default function VendorDashboardPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  useEffect(() => {
-    const fetchMembers = async () => {
-      setIsLoading(true);
-      const result = await getMembersAction();
-      if (result.success && result.members) {
-        setMembers(result.members);
-      } else {
+  const fetchMembers = useCallback(async (showToast = false) => {
+    setIsLoading(true);
+    const result = await getMembersAction();
+    if (result.success && result.members) {
+      setMembers(result.members);
+      if (showToast) {
         toast({
-          variant: 'destructive',
-          title: 'Gagal Memuat Member',
-          description: result.message || 'Tidak dapat mengambil data dari server.',
+          title: 'Data Disinkronkan',
+          description: 'Daftar member telah berhasil diperbarui dari database.',
         });
       }
-      setIsLoading(false);
-    };
-    fetchMembers();
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Gagal Memuat Member',
+        description: result.message || 'Tidak dapat mengambil data dari server.',
+      });
+    }
+    setIsLoading(false);
   }, [toast]);
+
+  useEffect(() => {
+    fetchMembers();
+  }, [fetchMembers]);
+
 
   const handleClearCache = async () => {
     setIsRefreshing(true);
@@ -250,8 +259,16 @@ export default function VendorDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2">
             <CardHeader>
-                <CardTitle>Member Management</CardTitle>
-                <CardDescription>View, manage, and take action on all registered member accounts.</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Member Management</CardTitle>
+                        <CardDescription>View, manage, and take action on all registered member accounts.</CardDescription>
+                    </div>
+                     <Button variant="outline" size="icon" onClick={() => fetchMembers(true)} disabled={isLoading}>
+                        <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
+                        <span className="sr-only">Refresh members</span>
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent>
                 <Table>
