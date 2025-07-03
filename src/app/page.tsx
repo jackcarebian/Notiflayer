@@ -159,7 +159,7 @@ export default function Home() {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl lg:text-4xl font-bold font-headline">Langganan Kode QR</h2>
-              <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Buka potensi penuh bisnis Anda dengan paket langganan yang paling sesuai.</p>
+              <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Buka potensi penuh bisnis Anda dengan paket langganan yang paling sesuai. Semua paket baru mendapatkan masa percobaan gratis 30 hari.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
               {pricingPlans.map((plan) => (
