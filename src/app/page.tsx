@@ -53,7 +53,7 @@ const addons = [
     { item: "Tambah Cabang (Multi Bisnis)", price: "Rp 49.000 / cabang", note: "Diskon 10% jika 4 outlet atau lebih." },
     { item: "Tambah Brand (Multi Bisnis)", price: "Rp 99.000 / brand", note: "Diskon 10% jika 4 putlet atau lebih dari 1 brand." },
     { item: "Upgrade dari 1 Cabang -> Banyak Cabang", price: "Rp 20.000 / sisa hari", note: "Biaya prorata berdasarkan sisa periode berjalan." },
-    { item: "Tambah Kampanye Promo Baru", price: "Rp 30.000 / kampanye", note: "Setiap 1 kampanye gratis per bulan per outlet." },
+    { item: "Tambah Kampanye Promo Baru", price: "Rp 30.000 / kampanye", note: "Setiap member mendapat kuota kampanye gratis bulanan." },
 ]
 
 export default function Home() {
@@ -228,7 +228,7 @@ export default function Home() {
                         <div>
                             <h3 className="font-bold text-lg mb-2">Keterangan Tambahan</h3>
                             <ul className="space-y-2 list-disc pl-5 text-gray-600 text-sm">
-                                <li>Semua Member baru berhak mendapatkan 1 kampanye promo gratis setiap bulan.</li>
+                                <li>Semua Member baru berhak mendapatkan kuota kampanye promo gratis setiap bulan.</li>
                                 <li>Kampanye tambahan bersifat berbayar per jadwal.</li>
                                 <li>Sistem secara otomatis akan menagih ulang jika kuota kampanye habis.</li>
                                 <li>Penagihan add-on akan digabungkan dengan tagihan bulanan Anda.</li>

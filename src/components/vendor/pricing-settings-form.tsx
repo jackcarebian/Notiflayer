@@ -28,6 +28,7 @@ const pricingSchema = z.object({
   addonCampaign: z.coerce.number().min(0, "Harga harus positif."),
   addonBranch: z.coerce.number().min(0, "Harga harus positif."),
   addonBrand: z.coerce.number().min(0, "Harga harus positif."),
+  freeCampaignsPerMonth: z.coerce.number().int().min(0, "Jumlah harus 0 atau lebih."),
 });
 
 // Mock data: In a real app, this would be fetched from a database.
@@ -38,6 +39,7 @@ const currentPrices = {
     addonCampaign: 30000,
     addonBranch: 40000,
     addonBrand: 99000,
+    freeCampaignsPerMonth: 1,
 };
 
 function PriceInput({ field, label, description }: { field: any; label: string; description?: string }) {
@@ -74,13 +76,13 @@ export function PricingSettingsForm() {
     async function onSubmit(values: z.infer<typeof pricingSchema>) {
         setIsSubmitting(true);
         // SIMULASI: Menyimpan data ke backend.
-        console.log("SIMULASI: Memperbarui harga langganan...", values);
+        console.log("SIMULASI: Memperbarui harga dan kebijakan...", values);
         
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         toast({
             title: "Pengaturan Disimpan!",
-            description: "Harga langganan dan add-on telah berhasil diperbarui.",
+            description: "Harga langganan dan kebijakan telah berhasil diperbarui.",
         });
         
         setIsSubmitting(false);
@@ -89,16 +91,40 @@ export function PricingSettingsForm() {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Konfigurasi Harga Strategis</CardTitle>
+                <CardTitle>Konfigurasi Harga & Kebijakan</CardTitle>
                 <CardDescription>
-                    Atur harga untuk paket langganan dan item add-on. Perubahan akan diterapkan secara global.
+                    Atur harga dan kebijakan strategis. Perubahan akan diterapkan secara global.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                         <div>
-                            <h3 className="text-base font-semibold mb-4 text-primary">Harga Paket Langganan</h3>
+                            <h3 className="text-base font-semibold mb-4 text-primary">Kebijakan Kampanye</h3>
+                            <div className="space-y-6">
+                               <FormField control={form.control} name="freeCampaignsPerMonth" render={({ field }) => (
+                                    <FormItem>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 items-start md:items-center gap-2 md:gap-4">
+                                            <div className="md:col-span-1">
+                                                <FormLabel>Kampanye Gratis</FormLabel>
+                                                <FormDescription className="mt-1">Jumlah kampanye gratis yang didapat setiap member per bulan.</FormDescription>
+                                            </div>
+                                            <div className="md:col-span-2">
+                                                <FormControl>
+                                                    <Input type="number" className="max-w-xs" placeholder="1" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </div>
+                                        </div>
+                                    </FormItem>
+                                )} />
+                            </div>
+                        </div>
+
+                        <Separator />
+
+                        <div>
+                            <h3 className="text-base font-semibold mb-4 text-primary">Harga Paket Langganan (per Bulan)</h3>
                             <div className="space-y-6">
                                 <FormField control={form.control} name="satuCabang" render={({ field }) => (
                                     <PriceInput field={field} label="Satu Cabang" />
@@ -131,7 +157,7 @@ export function PricingSettingsForm() {
                         
                         <Button type="submit" disabled={isSubmitting}>
                            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                           Simpan Perubahan Harga
+                           Simpan Perubahan
                         </Button>
                     </form>
                 </Form>

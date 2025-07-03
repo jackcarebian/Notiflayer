@@ -28,13 +28,35 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { promoInterests } from "@/lib/outlets";
-import { Calendar as CalendarIcon, Upload, Users, X } from "lucide-react";
+import { Calendar as CalendarIcon, Upload, Users, X, Loader2, Printer, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { Separator } from "../ui/separator";
 
 const businessCategories = Object.keys(promoInterests);
+const ADDON_CAMPAIGN_PRICE = 30000;
+
+function formatRupiah(amount: number) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+    }).format(amount);
+}
+
 
 export function CampaignForm() {
   const [campaignName, setCampaignName] = useState("");
@@ -45,6 +67,13 @@ export function CampaignForm() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [description, setDescription] = useState("");
   
+  // --- State untuk simulasi kuota & invoice ---
+  const [usedCampaigns, setUsedCampaigns] = useState(1);
+  const [freeCampaignQuota] = useState(1); // Kuota gratis, bisa dari API
+  const [isConfirmingPurchase, setIsConfirmingPurchase] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -63,27 +92,40 @@ export function CampaignForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const campaignData = {
-        name: campaignName,
-        dateRange: date,
-        category,
-        preferences,
-        image: image?.name,
-        description,
-    };
-    console.log("Menyimpan kampanye:", campaignData);
-    alert("Fitur penyimpanan belum terhubung. Data kampanye tercatat di console.");
+    if (usedCampaigns >= freeCampaignQuota) {
+        setIsConfirmingPurchase(true);
+    } else {
+        publishCampaign();
+    }
   };
+
+  const publishCampaign = () => {
+    setIsSubmitting(true);
+    console.log("Menyimpan kampanye...");
+    toast({
+        title: "Kampanye Dipublikasikan!",
+        description: `Kampanye "${campaignName}" telah berhasil dibuat.`,
+    });
+    setUsedCampaigns(prev => prev + 1); // Tambah jumlah kampanye terpakai
+    // Reset form di sini jika perlu
+    setIsSubmitting(false);
+    setIsConfirmingPurchase(false);
+  }
+
+  const handlePrintInvoice = () => {
+    window.print();
+  }
 
   // Mock targeted customers based on selection for demo purposes
   const targetedCustomers = Math.floor(Math.random() * 50) + (preferences.length * 10); 
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>Buat Kampanye Baru</CardTitle>
         <CardDescription>
-          Isi detail di bawah ini untuk meluncurkan kampanye Anda berikutnya. Kampanye akan otomatis muncul di kalender dan daftar di bawah.
+          Isi detail di bawah ini untuk meluncurkan kampanye Anda berikutnya. Kuota gratis Anda bulan ini: {Math.max(0, freeCampaignQuota - usedCampaigns)}/{freeCampaignQuota}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -223,11 +265,57 @@ export function CampaignForm() {
             />
           </div>
           
-          <Button type="submit" size="lg">
+          <Button type="submit" size="lg" disabled={isSubmitting}>
+             {isSubmitting ? (
+                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+             ) : (
+                 <ShoppingCart className="mr-2 h-4 w-4" />
+             )}
             Simpan dan Publikasikan Kampanye
           </Button>
         </form>
       </CardContent>
     </Card>
+
+    <AlertDialog open={isConfirmingPurchase} onOpenChange={setIsConfirmingPurchase}>
+        <AlertDialogContent className="printable-area">
+             <div id="invoice-content">
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Konfirmasi Pembelian Kampanye Tambahan</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Kuota kampanye gratis Anda bulan ini telah habis. Lanjutkan untuk membeli satu (1) slot kampanye tambahan.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="my-4 space-y-4">
+                    <Separator />
+                    <div className="space-y-2">
+                        <h4 className="font-semibold">Rincian Invoice</h4>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Item</span>
+                            <span className="text-muted-foreground">Harga</span>
+                        </div>
+                        <div className="flex justify-between font-medium">
+                            <span>1x Kampanye Tambahan</span>
+                            <span>{formatRupiah(ADDON_CAMPAIGN_PRICE)}</span>
+                        </div>
+                    </div>
+                    <Separator />
+                     <div className="flex justify-between font-bold text-lg">
+                        <span>Total Tagihan</span>
+                        <span>{formatRupiah(ADDON_CAMPAIGN_PRICE)}</span>
+                    </div>
+                </div>
+             </div>
+            <AlertDialogFooter className="no-print">
+                <Button variant="outline" onClick={handlePrintInvoice}><Printer className="mr-2 h-4 w-4" />Cetak Invoice</Button>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={publishCampaign} disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Konfirmasi & Publikasikan
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 }
