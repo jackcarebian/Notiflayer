@@ -23,6 +23,7 @@ import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   ownerName: z.string().min(2, { message: "Nama Anda minimal 2 karakter." }),
+  businessName: z.string().min(2, { message: "Nama Outlet minimal 2 karakter." }),
   email: z.string().email({ message: "Format email tidak valid." }),
   password: z.string().min(6, { message: "Password minimal 6 karakter." }),
 });
@@ -36,6 +37,7 @@ export function DemoRegistrationForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       ownerName: "",
+      businessName: "",
       email: "",
       password: "",
     },
@@ -77,6 +79,19 @@ export function DemoRegistrationForm() {
                   <FormLabel>Nama Anda</FormLabel>
                   <FormControl>
                     <Input placeholder="Nama Lengkap Anda" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="businessName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nama Outlet</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contoh: Kedai Kopi Senja" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

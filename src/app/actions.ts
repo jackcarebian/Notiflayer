@@ -70,6 +70,7 @@ export async function registerCustomerAction(payload: RegisterCustomerPayload) {
 // =================================================================
 const demoOutletFormSchema = z.object({
   ownerName: z.string().min(2, { message: "Nama Anda minimal 2 karakter." }),
+  businessName: z.string().min(2, { message: "Nama Outlet minimal 2 karakter." }),
   email: z.string().email({ message: "Format email tidak valid." }),
   password: z.string().min(6, { message: "Password minimal 6 karakter." }),
 });
@@ -87,10 +88,10 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
     };
   }
 
-  const { ownerName, email, password } = validation.data;
+  const { ownerName, businessName, email, password } = validation.data;
   
   const newMemberData = {
-    businessName: ownerName,
+    businessName: businessName,
     owner: ownerName,
     email,
     plan: 'Demo',
@@ -109,7 +110,7 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
     
     return {
       success: true,
-      message: `Pendaftaran demo untuk ${ownerName} berhasil! Silakan login untuk memulai.`,
+      message: `Pendaftaran demo untuk ${businessName} berhasil! Silakan login untuk memulai.`,
     };
   } catch (error) {
      console.error("Gagal menyimpan outlet demo ke Firestore:", error);
