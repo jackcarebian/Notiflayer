@@ -27,11 +27,13 @@ export default function RegisterPage() {
                     <Button className="w-full mt-auto">Mulai Demo</Button>
                 </Card>
             </Link>
-             <Card className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 cursor-not-allowed opacity-60">
-                 <h3 className="text-lg font-bold mb-2">Akun Member</h3>
-                <p className="text-sm text-muted-foreground mb-4">Daftar untuk akun berbayar dan mulai kampanye Anda.</p>
-                <Button className="w-full mt-auto" disabled>Daftar Member</Button>
-            </Card>
+             <Link href="/register/member">
+                <Card className="flex flex-col items-center justify-center p-6 text-center h-full hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
+                    <h3 className="text-lg font-bold mb-2">Akun Member</h3>
+                    <p className="text-sm text-muted-foreground mb-4">Daftar untuk akun berbayar dan mulai kampanye Anda.</p>
+                    <Button className="w-full mt-auto">Daftar Member</Button>
+                </Card>
+            </Link>
            </div>
           <div className="text-center text-sm">
             Sudah punya akun?{" "}

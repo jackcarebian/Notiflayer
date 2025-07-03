@@ -23,6 +23,7 @@ const features = [
 
 const pricingPlans = [
   {
+    id: "satu-cabang",
     icon: <Store className="w-8 h-8 text-primary" />,
     title: "Satu Cabang",
     price: "49.000",
@@ -30,6 +31,7 @@ const pricingPlans = [
     popular: false,
   },
   {
+    id: "banyak-cabang",
     icon: <Building2 className="w-8 h-8 text-primary" />,
     title: "Banyak Cabang",
     price: "99.000",
@@ -37,6 +39,7 @@ const pricingPlans = [
     popular: true,
   },
   {
+    id: "multi-bisnis",
     icon: <Globe className="w-8 h-8 text-primary" />,
     title: "Multi Bisnis dan Banyak Cabang",
     price: "199.000",
@@ -180,7 +183,9 @@ export default function Home() {
                     </ul>
                   </CardContent>
                   <div className="p-6 pt-0 mt-auto">
-                    <Button className="w-full" variant={plan.popular ? 'default' : 'outline'}>Pilih Paket</Button>
+                    <Button asChild className="w-full" variant={plan.popular ? 'default' : 'outline'}>
+                        <Link href={`/register/member?plan=${plan.id}`}>Pilih Paket</Link>
+                    </Button>
                   </div>
                 </Card>
               ))}

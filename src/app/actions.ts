@@ -120,6 +120,68 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
 }
 
 // =================================================================
+// ACTION UNTUK REGISTRASI MEMBER BARU (BERBAYAR)
+// =================================================================
+const memberFormSchema = z.object({
+  ownerName: z.string().min(2, { message: "Nama lengkap harus diisi." }),
+  businessName: z.string().min(2, { message: "Nama outlet/bisnis harus diisi." }),
+  address: z.string().min(10, { message: "Alamat lengkap minimal 10 karakter." }),
+  postalCode: z.string().min(5, { message: "Kode pos minimal 5 digit." }),
+  businessType: z.string({ required_error: "Pilih jenis bisnis Anda." }),
+  email: z.string().email({ message: "Format email tidak valid." }),
+  whatsappNumber: z.string().min(10, { message: "Nomor WhatsApp minimal 10 digit." }),
+  planId: z.string({ required_error: "Anda harus memilih paket langganan." }),
+});
+
+type RegisterMemberPayload = z.infer<typeof memberFormSchema>;
+
+export async function registerMemberAction(payload: RegisterMemberPayload) {
+  const validation = memberFormSchema.safeParse(payload);
+
+  if (!validation.success) {
+    return {
+      success: false,
+      message: "Data yang dimasukkan tidak valid.",
+      errors: validation.error.flatten().fieldErrors,
+    };
+  }
+  const { businessName, ownerName, email, planId, ...otherDetails } = validation.data;
+
+  // Simple mapping from planId to a more readable plan name
+  const planMap: { [key: string]: string } = {
+    'satu-cabang': 'Satu Cabang',
+    'banyak-cabang': 'Banyak Cabang',
+    'multi-bisnis': 'Multi Bisnis'
+  }
+
+  const newMemberData = {
+    businessName,
+    owner: ownerName,
+    email,
+    plan: planMap[planId] || 'Satu Cabang',
+    status: 'Active', // In a real app, this might be 'Pending Payment'
+    joined: new Date().toISOString(),
+    ...otherDetails,
+  };
+
+  try {
+    const docRef = await db.collection("members").add(newMemberData);
+    console.log("Member baru disimpan ke Firestore dengan ID:", docRef.id);
+    
+    return {
+      success: true,
+      message: `Pendaftaran untuk ${businessName} berhasil! Silakan login untuk memulai.`,
+    };
+  } catch (error) {
+     console.error("Gagal menyimpan member ke Firestore:", error);
+     return {
+       success: false,
+       message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+     };
+  }
+}
+
+// =================================================================
 // ACTION UNTUK MENGHAPUS MEMBER
 // =================================================================
 export async function deleteMemberAction(memberId: string) {
