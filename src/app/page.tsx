@@ -106,7 +106,7 @@ export default function Home() {
         <section className="bg-blue-50 py-16 lg:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 font-headline">
-              Di Persimpangan Teknologi dan Ambisi, Visi Kita Bersatu
+              Di Persimpangan Teknologi dan Harapan, Visi Kita Bersatu
             </h2>
             <p className="mt-6 text-lg text-gray-600 leading-relaxed">
               Notiflayer lahir dari sebuah keyakinan: di balik setiap QR code yang terpindai dan setiap notifikasi yang terkirim, ada sebuah detak jantung bisnis yang berjuang untuk bertumbuh. Visi kami menyatu dengan visi Anda. Bukan hanya tentang mengirim promo, tapi tentang <strong className="font-semibold text-gray-800">menciptakan momen yang mendorong transaksi</strong> dan <strong className="font-semibold text-gray-800">menempa loyalitas pelanggan</strong> yang setia.
