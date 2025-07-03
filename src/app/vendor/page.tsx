@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { StatCard } from '@/components/dashboard/stat-card';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +13,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { members, memberAnalytics, allCustomers, allCampaigns } from '@/lib/data';
+import { memberAnalytics, allCustomers, allCampaigns } from '@/lib/data';
+import { getMembersAction } from '@/app/actions';
+import type { Member } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const getStatusVariant = (status: string): "default" | "secondary" | "outline" | "destructive" | null | undefined => {
@@ -37,12 +40,32 @@ const ratingToScore: Record<AnalyticsRating, number> = {
 };
 
 export default function VendorDashboardPage() {
+  const [members, setMembers] = useState<Member[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  useEffect(() => {
+    const fetchMembers = async () => {
+      setIsLoading(true);
+      const result = await getMembersAction();
+      if (result.success && result.members) {
+        setMembers(result.members);
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Gagal Memuat Member',
+          description: result.message || 'Tidak dapat mengambil data dari server.',
+        });
+      }
+      setIsLoading(false);
+    };
+    fetchMembers();
+  }, [toast]);
 
   const handleClearCache = async () => {
     setIsRefreshing(true);
@@ -219,8 +242,8 @@ export default function VendorDashboardPage() {
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="Total Members" value={members.length.toString()} icon={<Users />} description={`${members.filter(m => m.status === 'Active').length} active subscriptions`} />
-        <StatCard title="Pending Upgrades" value={members.filter(m => m.status === 'Upgrade Pending').length.toString()} icon={<Clock />} description="Awaiting activation" />
+        <StatCard title="Total Members" value={isLoading ? "..." : members.length.toString()} icon={<Users />} description={isLoading ? "" : `${members.filter(m => m.status === 'Active').length} active subscriptions`} />
+        <StatCard title="Pending Upgrades" value={isLoading ? "..." : members.filter(m => m.status === 'Upgrade Pending').length.toString()} icon={<Clock />} description="Awaiting activation" />
         <StatCard title="Avg. Success Potential" value={`${avgSuccessPotential}%`} icon={<BarChart />} description="Based on AI-driven analytics" />
       </div>
 
@@ -242,42 +265,60 @@ export default function VendorDashboardPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {members.map(member => (
-                            <TableRow key={member.id}>
-                                <TableCell className="font-medium">{member.businessName}</TableCell>
-                                <TableCell>{member.email}</TableCell>
-                                <TableCell><Badge variant={getStatusVariant(member.status)}>{member.status}</Badge></TableCell>
-                                <TableCell>{member.plan}</TableCell>
-                                <TableCell>
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuSeparator />
-                                            {member.status === 'Upgrade Pending' && (
-                                                <DropdownMenuItem className="text-green-600 focus:bg-green-100 focus:text-green-700">
-                                                    <CheckCircle className="mr-2 h-4 w-4" />
-                                                    Activate Upgrade
+                        {isLoading ? (
+                            Array.from({ length: 5 }).map((_, index) => (
+                                <TableRow key={index}>
+                                    <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                                    <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                                    <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                                    <TableCell><Skeleton className="h-8 w-8" /></TableCell>
+                                </TableRow>
+                            ))
+                        ) : members.length > 0 ? (
+                            members.map(member => (
+                                <TableRow key={member.id}>
+                                    <TableCell className="font-medium">{member.businessName}</TableCell>
+                                    <TableCell>{member.email}</TableCell>
+                                    <TableCell><Badge variant={getStatusVariant(member.status)}>{member.status}</Badge></TableCell>
+                                    <TableCell>{member.plan}</TableCell>
+                                    <TableCell>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
+                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                {member.status === 'Upgrade Pending' && (
+                                                    <DropdownMenuItem className="text-green-600 focus:bg-green-100 focus:text-green-700">
+                                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                                        Activate Upgrade
+                                                    </DropdownMenuItem>
+                                                )}
+                                                <DropdownMenuItem>
+                                                    <BarChart className="mr-2 h-4 w-4" />
+                                                    View Analytics
                                                 </DropdownMenuItem>
-                                            )}
-                                            <DropdownMenuItem>
-                                                <BarChart className="mr-2 h-4 w-4" />
-                                                View Analytics
-                                            </DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem className="text-destructive focus:bg-red-100 focus:text-destructive">
-                                                <Trash2 className="mr-2 h-4 w-4" />
-                                                Delete Member
-                                            </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem className="text-destructive focus:bg-red-100 focus:text-destructive">
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Delete Member
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                          <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center">
+                              Tidak ada member yang ditemukan.
+                            </TableCell>
+                          </TableRow>
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>

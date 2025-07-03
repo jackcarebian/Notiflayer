@@ -4,6 +4,7 @@
 import { z } from "zod";
 import { db } from "@/lib/firebase-admin";
 import { slugify } from "@/lib/utils";
+import type { Member } from "@/lib/types";
 
 // =================================================================
 // ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
@@ -255,5 +256,31 @@ export async function deleteMemberAction(memberId: string) {
   } catch (error) {
     console.error("Error saat menghapus member dari Firestore:", error);
     return { success: false, message: "Gagal menghapus member dari server." };
+  }
+}
+
+// =================================================================
+// ACTION UNTUK MENGAMBIL SEMUA MEMBER
+// =================================================================
+export async function getMembersAction() {
+  try {
+    const membersSnapshot = await db.collection("members").orderBy('joined', 'desc').get();
+    if (membersSnapshot.empty) {
+      return { success: true, members: [] };
+    }
+    const members = membersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Member[];
+    
+    // Ensure data is serializable
+    return { success: true, members: JSON.parse(JSON.stringify(members)) };
+  } catch (error) {
+    console.error("Gagal mengambil data member dari Firestore:", error);
+    return {
+      success: false,
+      message: "Terjadi kesalahan pada server saat mengambil data member.",
+      members: [],
+    };
   }
 }
