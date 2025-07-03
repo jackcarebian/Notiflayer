@@ -8,9 +8,9 @@ export default function VendorSettingsPage() {
             <div className="flex items-center gap-4">
                  <Settings className="h-8 w-8 text-primary" />
                  <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Vendor Settings</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Global Settings</h1>
                     <p className="text-muted-foreground">
-                        Konfigurasi pengaturan global dan strategis untuk panel vendor.
+                        Konfigurasi pengaturan global, kebijakan, dan integrasi untuk platform.
                     </p>
                  </div>
             </div>
