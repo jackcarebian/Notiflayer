@@ -6,6 +6,24 @@ import { db } from "@/lib/firebase-admin";
 import { slugify } from "@/lib/utils";
 import type { Member, Outlet } from "@/lib/types";
 
+// Helper to provide more specific user-friendly error messages
+function handleFirestoreError(error: any, context: string): string {
+    console.error(`Firestore Error in ${context}:`, error);
+
+    let userFriendlyMessage = `Terjadi kesalahan pada server saat ${context}.`;
+
+    if (error.code === 7 || (error.message && (error.message.includes('permission-denied') || error.message.includes('Permission denied')))) {
+        userFriendlyMessage = "Gagal: Izin ditolak. Pastikan service account Anda memiliki role 'Cloud Datastore User' atau 'Firebase Admin' di Google Cloud Console.";
+    } else if (error.code === 5 || (error.message && error.message.includes('NOT_FOUND'))) {
+        userFriendlyMessage = "Gagal: Salah satu koleksi yang dibutuhkan (misalnya, 'members') tidak ditemukan di database.";
+    } else if (error.code === 3 || (error.message && error.message.includes('INVALID_ARGUMENT'))) {
+         userFriendlyMessage = "Gagal: Terjadi kesalahan pada argumen query. Ini mungkin karena kredensial tidak valid.";
+    }
+
+    return userFriendlyMessage;
+}
+
+
 // =================================================================
 // ACTION UNTUK REGISTRASI PELANGGAN (DARI QR CODE)
 // =================================================================
@@ -56,10 +74,10 @@ export async function registerCustomerAction(payload: RegisterCustomerPayload) {
       message: `Pendaftaran untuk ${name} berhasil!`,
     };
   } catch (error) {
-    console.error("Gagal menyimpan pelanggan ke Firestore:", error);
+    const errorMessage = handleFirestoreError(error, "menyimpan pelanggan");
     return {
       success: false,
-      message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+      message: errorMessage,
     };
   }
 }
@@ -113,10 +131,10 @@ export async function registerDemoOutletAction(payload: RegisterDemoOutletPayloa
       message: `Pendaftaran demo untuk ${businessName} berhasil! Silakan login untuk memulai.`,
     };
   } catch (error) {
-     console.error("Gagal menyimpan outlet demo ke Firestore:", error);
+     const errorMessage = handleFirestoreError(error, "menyimpan outlet demo");
      return {
        success: false,
-       message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+       message: errorMessage,
      };
   }
 }
@@ -186,10 +204,10 @@ export async function registerMemberAction(payload: RegisterMemberPayload) {
       message: `Pendaftaran untuk ${businessName} berhasil! Silakan login untuk memulai.`,
     };
   } catch (error) {
-     console.error("Gagal menyimpan member ke Firestore:", error);
+     const errorMessage = handleFirestoreError(error, "menyimpan member baru");
      return {
        success: false,
-       message: "Terjadi kesalahan pada server saat menyimpan data. Silakan coba lagi.",
+       message: errorMessage,
      };
   }
 }
@@ -233,10 +251,10 @@ export async function addOutletAction(payload: z.infer<typeof outletFormSchema>)
       message: `Outlet "${name}" berhasil ditambahkan.`,
     };
   } catch (error) {
-    console.error("Gagal menyimpan outlet ke Firestore:", error);
+    const errorMessage = handleFirestoreError(error, "menambah outlet");
     return {
       success: false,
-      message: "Terjadi kesalahan pada server saat menyimpan data.",
+      message: errorMessage,
     };
   }
 }
@@ -254,8 +272,8 @@ export async function deleteMemberAction(memberId: string) {
     console.log(`Member dengan ID: ${memberId} telah dihapus dari Firestore.`);
     return { success: true, message: "Member berhasil dihapus." };
   } catch (error) {
-    console.error("Error saat menghapus member dari Firestore:", error);
-    return { success: false, message: "Gagal menghapus member dari server." };
+    const errorMessage = handleFirestoreError(error, "menghapus member");
+    return { success: false, message: errorMessage };
   }
 }
 
@@ -276,10 +294,10 @@ export async function getMembersAction() {
     // Ensure data is serializable
     return { success: true, members: JSON.parse(JSON.stringify(members)) };
   } catch (error) {
-    console.error("Gagal mengambil data member dari Firestore:", error);
+    const errorMessage = handleFirestoreError(error, "mengambil data member");
     return {
       success: false,
-      message: "Terjadi kesalahan pada server saat mengambil data member.",
+      message: errorMessage,
       members: [],
     };
   }
@@ -312,10 +330,10 @@ export async function getOutletsPageDataAction() {
     
     return { success: true, outlets: JSON.parse(JSON.stringify(outlets)), member: JSON.parse(JSON.stringify(member)) };
   } catch (error) {
-    console.error("Gagal mengambil data halaman outlet dari Firestore:", error);
+    const errorMessage = handleFirestoreError(error, "mengambil data halaman outlet");
     return {
       success: false,
-      message: "Terjadi kesalahan pada server saat mengambil data.",
+      message: errorMessage,
       outlets: [],
       member: null,
     };
@@ -338,7 +356,7 @@ export async function getOutletBySlugAction(slug: string): Promise<{ success: bo
         const outlet = { id: doc.id, ...doc.data() } as Outlet;
         return { success: true, outlet: JSON.parse(JSON.stringify(outlet)) };
     } catch (error) {
-        console.error("Gagal mengambil outlet by slug dari Firestore:", error);
-        return { success: false, outlet: null, message: "Gagal mengambil data dari server." };
+        const errorMessage = handleFirestoreError(error, "mengambil outlet by slug");
+        return { success: false, outlet: null, message: errorMessage };
     }
 }
