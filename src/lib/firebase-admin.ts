@@ -31,36 +31,52 @@ if (hasCredentials) {
     }
 } else {
     console.warn("Firebase Admin credentials not found in .env file. Using a mock database for build purposes.");
-    // Create a mock db object so the app doesn't crash during build.
-    const createMockDb = () => new Proxy({}, {
-        get(target, prop) {
-            if (prop === 'collection') {
-                return () => {
-                    const queryProxy = new Proxy({}, {
-                      get(target, prop) {
-                        if (['add', 'get', 'doc', 'orderBy', 'where', 'limit'].includes(prop as string)) {
-                          return async (...args: any[]) => {
-                            if (prop === 'get') return Promise.resolve({ empty: true, docs: [] });
-                            if (prop === 'add') return Promise.resolve({ id: 'mock' });
-                            if (prop === 'doc') return { delete: async () => Promise.resolve(), set: async () => Promise.resolve() };
-                            return queryProxy; // Allow chaining
-                          }
-                        }
-                        return undefined;
-                      }
+    // Create a mock db object so the app doesn't crash during build or dev.
+    const createMockDb = () => {
+        const createMockQuery = (): any => {
+            const queryProxy = new Proxy({}, {
+                get(target, prop) {
+                    // For chainable methods, return the proxy itself to allow further chaining.
+                    if (['orderBy', 'where', 'limit', 'doc'].includes(prop as string)) {
+                        return () => queryProxy;
+                    }
+                    // For terminal methods, return the expected async result.
+                    if (prop === 'get') {
+                        return async () => Promise.resolve({ empty: true, docs: [] });
+                    }
+                    if (prop === 'add') {
+                        return async () => Promise.resolve({ id: 'mock' });
+                    }
+                    if (prop === 'delete') {
+                         return async () => Promise.resolve();
+                    }
+                    if (prop === 'set') {
+                        return async () => Promise.resolve();
+                    }
+                    // Default behavior for any other property
+                    return () => queryProxy;
+                }
+            });
+            return queryProxy;
+        };
+        
+        const mockDb = new Proxy({}, {
+            get(target, prop) {
+                if (prop === 'collection') {
+                    return () => createMockQuery();
+                }
+                if (prop === 'batch') {
+                    return () => ({
+                        set: () => {},
+                        commit: async () => Promise.resolve(),
                     });
-                    return queryProxy;
-                };
+                }
+                return () => {};
             }
-             if (prop === 'batch') {
-                return () => ({
-                    set: () => {},
-                    commit: async () => Promise.resolve(),
-                });
-            }
-            return () => {};
-        }
-    }) as unknown as Firestore;
+        });
+        
+        return mockDb as unknown as Firestore;
+    };
     db = createMockDb();
 }
 
