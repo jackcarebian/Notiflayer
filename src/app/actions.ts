@@ -264,7 +264,7 @@ export async function deleteMemberAction(memberId: string) {
 // =================================================================
 export async function getMembersAction() {
   try {
-    const membersSnapshot = await db.collection("members").orderBy('joined', 'desc').get();
+    const membersSnapshot = await db.collection("members").get();
     if (membersSnapshot.empty) {
       return { success: true, members: [] };
     }
@@ -296,7 +296,7 @@ export async function getOutletsPageDataAction() {
     
     let memberDoc;
     if (membersSnapshot.empty) {
-      const firstMemberSnapshot = await db.collection('members').orderBy('joined', 'desc').limit(1).get();
+      const firstMemberSnapshot = await db.collection('members').limit(1).get();
       if(firstMemberSnapshot.empty) {
           return { success: false, message: "Tidak ada member yang terdaftar di database.", outlets: [], member: null };
       }
